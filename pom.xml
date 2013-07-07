@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>stni.maven</groupId>
+    <artifactId>tools-maven-plugin</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>maven-plugin</packaging>
+
+    <properties>
+        <dependency.locations.enabled>false</dependency.locations.enabled>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.2</version>
+                <configuration>
+                    <checkModificationExcludeList>workspace.xml</checkModificationExcludeList>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.1</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.5.1</version>
+            </plugin>
+        </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>2.2</version>
+            </extension>
+        </extensions>
+    </build>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>3.2.3.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.3.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+    </dependencies>
+
+    <scm>
+        <connection>scm:git:https://github.com/nidi3/maven-tools</connection>
+        <developerConnection>scm:git:https://github.com/nidi3/maven-tools</developerConnection>
+        <url>https://github.com/nidi3/maven-tools</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>mimacom-repo-id-deploy-open</id>
+            <name>mimacom releases open</name>
+            <uniqueVersion>false</uniqueVersion>
+            <url>${mimacom-deploy-path-releases-open}</url>
+        </repository>
+        <snapshotRepository>
+            <id>mimacom-repo-id-deploy-open</id>
+            <name>mimacom snapshots open</name>
+            <uniqueVersion>false</uniqueVersion>
+            <url>${mimacom-deploy-path-snapshots-open}</url>
+        </snapshotRepository>
+        <site>
+            <id>mimacom-repo-id-deploy-open</id>
+            <name>mimacom sites open</name>
+            <url>${mimacom-deploy-path-sites-open}/stni/maven/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+</project>

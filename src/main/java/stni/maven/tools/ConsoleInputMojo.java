@@ -43,26 +43,45 @@ public class ConsoleInputMojo extends AbstractMojo {
     protected boolean showIfTargetSet;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        String property = findProperty();
+        if (showIfTargetSet || property == null) {
+            showPrompt();
+            setProjectProperty(readInput());
+        }
+    }
+
+    private String findProperty() {
         String property = project.getProperties().getProperty(targetProperty);
         if (property == null) {
             property = System.getProperty(targetProperty);
-            project.getProperties().setProperty(targetProperty, property);
+            setProjectProperty(property);
         }
-        if (showIfTargetSet || property == null) {
-            System.out.print(prompt);
-            if (defaultValue != null) {
-                System.out.print(" (" + defaultValue + ")");
+        return property;
+    }
+
+    private void setProjectProperty(String value) {
+        if (value != null) {
+            project.getProperties().setProperty(targetProperty, value);
+        }
+    }
+
+    private void showPrompt() {
+        System.out.print(prompt);
+        if (defaultValue != null) {
+            System.out.print(" (" + defaultValue + ")");
+        }
+        System.out.print(": ");
+    }
+
+    private String readInput() throws MojoExecutionException {
+        try {
+            String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
+            if ((input == null || input.length() == 0) && defaultValue != null) {
+                return defaultValue;
             }
-            System.out.print(": ");
-            try {
-                String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
-                if ((input == null || input.length() == 0) && defaultValue != null) {
-                    input = defaultValue;
-                }
-                project.getProperties().setProperty(targetProperty, input);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Problem reading input", e);
-            }
+            return input;
+        } catch (IOException e) {
+            throw new MojoExecutionException("Problem reading input", e);
         }
     }
 }

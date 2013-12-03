@@ -8,7 +8,8 @@ Contains some goals to support maven builds.
 - runSpring: Startup / shutdown a spring container.
 - An ssh tunnel ant task to be used together with the antrun plugin:
 11. Add this plugin to the dependencies of the antrun plugin.
-11. Add ```xml
+11. Add
+```xml
 <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel" classpathref="maven.plugin.classpath"/>
 ``` to the maven tasks
 11. Usage: ```xml

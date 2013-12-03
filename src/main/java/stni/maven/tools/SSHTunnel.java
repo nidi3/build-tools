@@ -46,8 +46,6 @@ public class SSHTunnel extends SSHBase implements TaskContainer {
         try {
             session = startSession();
             executeNestedTasks();
-        } catch (BuildException e) {
-            log("Nested Tasks Failed!", Project.MSG_ERR);
         } finally {
             closeSession(session);
         }
@@ -82,20 +80,24 @@ public class SSHTunnel extends SSHBase implements TaskContainer {
     }
 
     private void executeNestedTasks() throws BuildException {
-        for (Task task : nestedTasks) {
-            if (task instanceof UnknownElement) {
-                ((UnknownElement) task).maybeConfigure();
-                task = ((UnknownElement) task).getTask();
-                if (task == null) {
-                    continue;
-                }
+        try {
+            for (Task task : nestedTasks) {
+                unwrap(task).perform();
             }
-            try {
-                task.perform();
-            } catch (Exception e) {
-                throw new BuildException(e);
-            }
+        } catch (Exception e) {
+            throw new BuildException(e);
         }
+    }
+
+    private Task unwrap(Task task) {
+        if (task instanceof UnknownElement) {
+            task.maybeConfigure();
+            task = ((UnknownElement) task).getTask();
+        }
+        return task != null
+                ? task
+                : new Task() {
+        };
     }
 
     private void closeSession(Session session) {

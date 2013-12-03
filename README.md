@@ -7,6 +7,10 @@ Contains some goals to support maven builds.
 - setProperty: Set java runtime properties.
 - runSpring: Startup / shutdown a spring container.
 - An ssh tunnel ant task to be used together with the antrun plugin:
-## Add this plugin to the dependencies of the antrun plugin.
-## Add <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel" classpathref="maven.plugin.classpath"/> to the maven tasks
-## Usage: <sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222" rport="22" rhost="${target.host}">
+11. Add this plugin to the dependencies of the antrun plugin.
+11. Add ```xml
+<taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel" classpathref="maven.plugin.classpath"/>
+``` to the maven tasks
+11. Usage: ```xml
+<sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222" rport="22" rhost="${target.host}">
+```

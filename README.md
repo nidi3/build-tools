@@ -1,3 +1,12 @@
 maven-tools
 ===========
 Contains some goals to support maven builds.
+
+- confirmation: A simple confirmation dialog (yes/no).
+- consoleInput: Set a property to a value given interactively.
+- setProperty: Set java runtime properties.
+- runSpring: Startup / shutdown a spring container.
+- An ssh tunnel ant task to be used together with the antrun plugin:
+## Add this plugin to the dependencies of the antrun plugin.
+## Add <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel" classpathref="maven.plugin.classpath"/> to the maven tasks
+## Usage: <sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222" rport="22" rhost="${target.host}">

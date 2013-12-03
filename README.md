@@ -11,14 +11,14 @@ Contains some goals to support maven builds.
 1. Add this plugin to the dependencies of the antrun plugin.
 1. Add
 
-    <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel"
-        classpathref="maven.plugin.classpath" />
+        <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel"
+            classpathref="maven.plugin.classpath" />
 
 to the maven tasks.
 
 1. Usage:
 
-    <sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222"
-        rport="22" rhost="${target.host}">
-        ...
-    </sshtunnel>
+        <sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222"
+            rport="22" rhost="${target.host}">
+            ...
+        </sshtunnel>

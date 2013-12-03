@@ -18,29 +18,29 @@ public class ConsoleInputMojo extends AbstractMojo {
      * @required
      * @readonly
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
      * @parameter expression="${prompt}"
      * @required
      */
-    protected String prompt;
+    private String prompt;
 
     /**
      * @parameter expression="${targetProperty}"
      * @required
      */
-    protected String targetProperty;
+    private String targetProperty;
 
     /**
      * @parameter expression="${defaultValue}"
      */
-    protected String defaultValue;
+    private String defaultValue;
 
     /**
      * @parameter expression="${showIfTargetSet}"
      */
-    protected boolean showIfTargetSet;
+    private boolean showIfTargetSet;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         String property = findProperty();

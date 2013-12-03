@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class LogConfiguration {
+class LogConfiguration {
     private LogConfiguration() {
     }
 

@@ -1,5 +1,6 @@
 package stni.maven.tools;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -8,6 +9,7 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * @goal runSpring
@@ -21,25 +23,25 @@ public class SpringRunnerMojo extends AbstractMojo {
      * @required
      * @readonly
      */
-    protected MavenProject project;
+    private MavenProject project;
 
     /**
      * @parameter expression="${contextFile}"
      * @required
      */
-    protected File contextFile;
+    private File contextFile;
 
     /**
      * @parameter expression="${failOnError}"
      */
-    protected boolean failOnError;
+    private boolean failOnError;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("******************** If using IntelliJ, consider using grep console plugin ********************");
         LogConfiguration.useLogConfig("logback-blue.xml");
 
         try {
-            MavenClasspathUtil.extendPluginClasspath(project.getTestClasspathElements());
+            MavenClasspathUtil.extendPluginClasspath(testClasspathElements());
             System.setProperty("basedir", project.getBasedir().getAbsolutePath());
             runSpringUsingReflection();
         } catch (Throwable e) {
@@ -47,6 +49,11 @@ public class SpringRunnerMojo extends AbstractMojo {
         } finally {
             LogConfiguration.useLogConfig("logback.xml");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> testClasspathElements() throws DependencyResolutionRequiredException {
+        return project.getTestClasspathElements();
     }
 
     private void runSpringUsingReflection() throws Throwable {

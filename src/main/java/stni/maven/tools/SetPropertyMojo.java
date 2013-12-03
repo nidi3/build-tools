@@ -12,7 +12,7 @@ public class SetPropertyMojo extends AbstractMojo {
      * @parameter expression="${properties}"
      * @required
      */
-    protected String properties;
+    private String properties;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         String[] split = properties.split(",");

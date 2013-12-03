@@ -14,7 +14,8 @@ Contains some goals to support maven builds.
     <taskdef name="sshtunnel" classname="stni.maven.tools.SSHTunnel"
     classpathref="maven.plugin.classpath"/>
 
-to the maven tasks
+to the maven tasks.
+
 1. Usage:
 
     <sshtunnel host="${tunnel.host}" username="..." password="..." lport="2222"

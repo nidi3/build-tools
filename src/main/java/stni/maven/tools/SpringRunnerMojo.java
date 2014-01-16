@@ -32,6 +32,12 @@ public class SpringRunnerMojo extends AbstractMojo {
     private File contextFile;
 
     /**
+     * @parameter expression="${profiles}"
+     * @required
+     */
+    private String profiles;
+
+    /**
      * @parameter expression="${failOnError}"
      */
     private boolean failOnError;
@@ -42,6 +48,7 @@ public class SpringRunnerMojo extends AbstractMojo {
 
         try {
             MavenClasspathUtil.extendPluginClasspath(testClasspathElements());
+            System.setProperty("spring.profiles.active", profiles);
             System.setProperty("basedir", project.getBasedir().getAbsolutePath());
             runSpringUsingReflection();
         } catch (Throwable e) {

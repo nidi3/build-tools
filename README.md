@@ -1,4 +1,4 @@
-maven-tools
+maven-tools [![Build Status](https://travis-ci.org/nidi3/maven-tools.png?branch=master)](https://travis-ci.org/nidi3/maven-tools)
 ===========
 Contains some goals to support maven builds.
 

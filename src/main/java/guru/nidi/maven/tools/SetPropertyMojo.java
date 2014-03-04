@@ -1,4 +1,4 @@
-package stni.maven.tools;
+package guru.nidi.maven.tools;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

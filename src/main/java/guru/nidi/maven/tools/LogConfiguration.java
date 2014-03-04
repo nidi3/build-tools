@@ -1,4 +1,4 @@
-package stni.maven.tools;
+package guru.nidi.maven.tools;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;

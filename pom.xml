@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>stni.maven</groupId>
+    <groupId>guru.nidi.maven.plugins</groupId>
     <artifactId>tools-maven-plugin</artifactId>
     <version>1.0.5-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
@@ -94,22 +94,15 @@
 
     <distributionManagement>
         <repository>
-            <id>mimacom-repo-id-deploy-open</id>
-            <name>mimacom releases open</name>
-            <uniqueVersion>false</uniqueVersion>
-            <url>${mimacom-deploy-path-releases-open}</url>
+            <id>internal.repo</id>
+            <name>Internal Repository</name>
+            <url>${internal.repo.path}/releases</url>
         </repository>
         <snapshotRepository>
-            <id>mimacom-repo-id-deploy-open</id>
-            <name>mimacom snapshots open</name>
-            <uniqueVersion>false</uniqueVersion>
-            <url>${mimacom-deploy-path-snapshots-open}</url>
+            <id>internal.repo</id>
+            <name>Internal Repository</name>
+            <url>${internal.repo.path}/snapshots</url>
         </snapshotRepository>
-        <site>
-            <id>mimacom-repo-id-deploy-open</id>
-            <name>mimacom sites open</name>
-            <url>${mimacom-deploy-path-sites-open}/stni/maven/${project.version}</url>
-        </site>
     </distributionManagement>
 
 </project>

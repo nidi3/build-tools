@@ -1,4 +1,4 @@
-package stni.maven.tools;
+package guru.nidi.maven.tools;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;

@@ -16,7 +16,7 @@
  *
  */
 
-package stni.maven.tools;
+package guru.nidi.maven.tools;
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.optional.ssh.*;

@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * @goal consolePasswordInput
+ *
  */
-public class ConsolePasswordInputMojo extends AbstractInputMojo {
+public class HiddenInputReader implements InputReader {
 
-    protected String doReadInput() throws IOException {
+    public String readInput() throws IOException {
         return (System.console() != null) ? consoleRead() : systemInRead();
     }
 

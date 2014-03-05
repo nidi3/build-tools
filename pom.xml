@@ -4,7 +4,7 @@
 
     <groupId>guru.nidi.maven.plugins</groupId>
     <artifactId>tools-maven-plugin</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.0.6</version>
     <packaging>maven-plugin</packaging>
 
     <properties>

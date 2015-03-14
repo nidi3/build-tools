@@ -15,9 +15,10 @@
  */
 package guru.nidi.maven.tools;
 
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.joran.spi.JoranException;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -28,14 +29,17 @@ class LogConfiguration {
     }
 
     public static void useLogConfig(String name) {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        try {
-            JoranConfigurator configurator = new JoranConfigurator();
-            configurator.setContext(context);
-            context.reset();
-            configurator.doConfigure(LogConfiguration.class.getClassLoader().getResourceAsStream(name));
-        } catch (JoranException je) {
-            throw new IllegalStateException(je);
+        final ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+        if (factory instanceof ContextBase) {
+            ContextBase context = (ContextBase) factory;
+            try {
+                JoranConfigurator configurator = new JoranConfigurator();
+                configurator.setContext(context);
+                context.reset();
+                configurator.doConfigure(LogConfiguration.class.getClassLoader().getResourceAsStream(name));
+            } catch (JoranException je) {
+                throw new IllegalStateException(je);
+            }
         }
     }
 }

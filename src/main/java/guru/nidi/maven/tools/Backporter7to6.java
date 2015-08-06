@@ -54,6 +54,7 @@ public class Backporter7to6 {
                         if (major > 0x33) {
                             throw new IllegalStateException(filename + " has a version > 7. Cannot be converted.");
                         } else if (major == 0x33) {
+                            raf.seek(6);
                             raf.writeShort(0x32);
                             log.info(filename + " converted.");
                         }

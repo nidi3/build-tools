@@ -18,27 +18,28 @@ package guru.nidi.maven.tools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 
 /**
- * @goal backport7to6
+ * @goal backport7to6-jar
  * @phase prepare-package
+ * @requiresProject false
  */
-public class Backport7to6Mojo extends AbstractMojo {
+public class Backport7to6JarMojo extends AbstractMojo {
     /**
-     * @parameter expression="${project}"
+     * @parameter expression="${file}"
      * @required
      * @readonly
      */
-    private MavenProject project;
+    private File file;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        final File classes = new File(project.getBuild().getOutputDirectory());
+        if (!file.exists() || !file.getName().endsWith(".jar")) {
+            throw new MojoExecutionException("File must exists and be a jar");
+        }
         try {
-            final String base = project.getBasedir().getParentFile().getAbsolutePath();
-            new Backporter7to6(getLog()).backportFiles(classes, base);
+            new Backporter7to6(getLog()).backportJar(file);
         } catch (Exception e) {
             throw new MojoExecutionException("Could not backport", e);
         }

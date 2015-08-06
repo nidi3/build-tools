@@ -37,7 +37,8 @@ public class Backporter7to6 {
         log.info("Backporting classes in " + dir.getAbsolutePath());
         doBackportFiles(dir, base);
     }
-    private  void doBackportFiles(File dir, String base) throws IOException {
+
+    private void doBackportFiles(File dir, String base) throws IOException {
         final File[] files = dir.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -49,9 +50,10 @@ public class Backporter7to6 {
                     try {
                         raf = new RandomAccessFile(file, "rw");
                         raf.seek(6);
-                        if (raf.readShort() > 0x33) {
+                        final short major = raf.readShort();
+                        if (major > 0x33) {
                             throw new IllegalStateException(filename + " has a version > 7. Cannot be converted.");
-                        } else if (raf.readShort() == 0x33) {
+                        } else if (major == 0x33) {
                             raf.writeShort(0x32);
                             log.info(filename + " converted.");
                         }
@@ -71,14 +73,19 @@ public class Backporter7to6 {
         final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));
         final ZipFile in = new ZipFile(jar);
         final Enumeration<? extends ZipEntry> entries = in.entries();
+        boolean converted = false;
         while (entries.hasMoreElements()) {
             final ZipEntry entry = entries.nextElement();
             out.putNextEntry(new ZipEntry(entry.getName()));
-            copy(in.getInputStream(entry), out, entry.getName());
+            converted |= convertCopy(in.getInputStream(entry), out, entry.getName());
             out.closeEntry();
         }
         in.close();
         out.close();
+        if (!converted) {
+            log.info("No backport needed.");
+            target.delete();
+        }
     }
 
     private File targetFile(File jar) {
@@ -86,10 +93,11 @@ public class Backporter7to6 {
         return new File(jar.getParentFile(), targetName + "-backported7to6.jar");
     }
 
-    private void copy(InputStream in, OutputStream out, String name) throws IOException {
+    private boolean convertCopy(InputStream in, OutputStream out, String name) throws IOException {
         final byte[] buf = new byte[10000];
         int read;
         boolean first = true;
+        boolean converted = false;
         while ((read = in.read(buf)) > 0) {
             if (name.endsWith(".class") && first) {
                 if (buf[7] > 0x33) {
@@ -97,11 +105,13 @@ public class Backporter7to6 {
                 } else if (buf[7] == 0x33) {
                     buf[7] = 0x32;
                     log.info(name + " converted.");
+                    converted = true;
                 }
             }
             first = false;
             out.write(buf, 0, read);
         }
         in.close();
+        return converted;
     }
 }

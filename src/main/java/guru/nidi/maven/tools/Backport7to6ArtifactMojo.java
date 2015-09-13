@@ -55,6 +55,6 @@ public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
     }
 
     private File resolve() {
-        return MavenUtil.resolveArtifact(session, repository, groupId, artifactId, version, "jar");
+        return MavenUtil.resolveArtifactFile(session, repository, groupId, artifactId, version, "jar");
     }
 }

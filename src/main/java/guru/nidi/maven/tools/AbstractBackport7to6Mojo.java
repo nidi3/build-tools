@@ -56,7 +56,7 @@ public abstract class AbstractBackport7to6Mojo extends AbstractMojo {
     protected RepositorySystem repository;
 
     protected SignatureChecker getChecker() throws IOException {
-        final File signature = MavenUtil.resolveArtifact(session, repository, "org.codehaus.mojo.signature", "java16", "1.1", "signature");
+        final File signature = MavenUtil.resolveArtifactFile(session, repository, "org.codehaus.mojo.signature", "java16", "1.1", "signature");
         final SignatureChecker checker = new SignatureChecker(new FileInputStream(signature), buildPackageList(), new SnifferLogger());
         checker.setSourcePath(Arrays.asList(new File(".")));
         return checker;

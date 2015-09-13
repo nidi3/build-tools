@@ -15,9 +15,12 @@
  */
 package guru.nidi.maven.tools;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.repository.RepositorySystem;
@@ -48,19 +51,26 @@ class MavenUtil {
         }
     }
 
-    public static File resolveArtifact(MavenSession session, RepositorySystem repository, String groupId, String artifactId, String version, String type) {
+    public static File resolveArtifactFile(MavenSession session, RepositorySystem repository, String groupId, String artifactId, String version, String type) {
         final DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, version, "compile", type, "", new DefaultArtifactHandler(type));
+        return resolveArtifact(session, repository, artifact, false, null).getOriginatingArtifact().getFile();
+    }
 
+    public static ArtifactResolutionResult resolveArtifact(MavenSession session, RepositorySystem repository, Artifact artifact, boolean transitive, ArtifactFilter resolutionFilter) {
+        artifact.setArtifactHandler(new DefaultArtifactHandler(artifact.getType()));
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        request.setResolveRoot(true).setResolveTransitively(false);
-        request.setServers(session.getRequest().getServers());
-        request.setMirrors(session.getRequest().getMirrors());
-        request.setProxies(session.getRequest().getProxies());
-        request.setLocalRepository(session.getLocalRepository());
-        request.setRemoteRepositories(session.getRequest().getRemoteRepositories());
-        repository.resolve(request);
-
-        return artifact.getFile();
+        request
+                .setArtifact(artifact)
+                .setResolveRoot(true)
+                .setServers(session.getRequest().getServers())
+                .setMirrors(session.getRequest().getMirrors())
+                .setProxies(session.getRequest().getProxies())
+                .setLocalRepository(session.getLocalRepository())
+                .setRemoteRepositories(session.getRequest().getRemoteRepositories())
+                .setResolveTransitively(transitive)
+                .setCollectionFilter(resolutionFilter)
+                .setResolutionFilter(resolutionFilter);
+        //.setListeners(Arrays.<ResolutionListener>asList(new DebugResolutionListener(new ConsoleLogger())));
+        return repository.resolve(request);
     }
 }

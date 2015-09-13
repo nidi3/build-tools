@@ -16,6 +16,7 @@
 package guru.nidi.maven.tools;
 
 import org.apache.maven.plugin.logging.Log;
+import org.codehaus.mojo.animal_sniffer.SignatureChecker;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -27,9 +28,11 @@ import java.util.zip.ZipOutputStream;
  *
  */
 public class Backporter7to6 {
+    private final SignatureChecker checker;
     private final Log log;
 
-    public Backporter7to6(Log log) {
+    public Backporter7to6(SignatureChecker checker, Log log) {
+        this.checker = checker;
         this.log = log;
     }
 
@@ -47,6 +50,7 @@ public class Backporter7to6 {
                 } else if (file.isFile() && file.getName().endsWith(".class")) {
                     final String filename = file.getAbsolutePath().substring(base.length() + 1);
                     RandomAccessFile raf = null;
+                    boolean converted = false;
                     try {
                         raf = new RandomAccessFile(file, "rw");
                         raf.seek(6);
@@ -57,15 +61,22 @@ public class Backporter7to6 {
                             raf.seek(6);
                             raf.writeShort(0x32);
                             log.info(filename + " converted.");
+                            converted = true;
                         }
                     } finally {
                         if (raf != null) {
                             raf.close();
                         }
                     }
+                    if (converted) {
+                        checker.process(file);
+                    }
                 }
             }
         }
+//        if (checker.isSignatureBroken()) {
+//            throw new IllegalStateException("File contains illegal signature.");
+//        }
     }
 
     public void backportJar(File jar) throws IOException {

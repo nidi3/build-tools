@@ -15,15 +15,8 @@
  */
 package guru.nidi.maven.tools;
 
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 
 import java.io.File;
 
@@ -31,36 +24,20 @@ import java.io.File;
  * @goal backport7to6-artifact
  * @phase prepare-package
  */
-public class Backport7to6ArtifactMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject project;
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
-    private MavenSession session;
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
-    private RepositorySystem repository;
+public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
     /**
      * @parameter expression="${groupId}"
      * @required
      * @readonly
      */
     private String groupId;
+
     /**
      * @parameter expression="${artifactId}"
      * @required
      * @readonly
      */
+
     private String artifactId;
     /**
      * @parameter expression="${version}"
@@ -71,25 +48,13 @@ public class Backport7to6ArtifactMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            new Backporter7to6(getLog()).backportJar(resolve());
+            new Backporter7to6(getChecker(), getLog()).backportJar(resolve());
         } catch (Exception e) {
             throw new MojoExecutionException("Could not backport", e);
         }
     }
 
     private File resolve() {
-        final DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, version, "compile", "jar", "", new DefaultArtifactHandler("jar"));
-
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        request.setResolveRoot(true).setResolveTransitively(false);
-        request.setServers(session.getRequest().getServers());
-        request.setMirrors(session.getRequest().getMirrors());
-        request.setProxies(session.getRequest().getProxies());
-        request.setLocalRepository(session.getLocalRepository());
-        request.setRemoteRepositories(session.getRequest().getRemoteRepositories());
-        repository.resolve(request);
-
-        return artifact.getFile();
+        return MavenUtil.resolveArtifact(session, repository, groupId, artifactId, version, "jar");
     }
 }

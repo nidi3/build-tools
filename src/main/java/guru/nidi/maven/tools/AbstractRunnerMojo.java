@@ -46,7 +46,7 @@ public abstract class AbstractRunnerMojo extends AbstractMojo {
         LogConfiguration.useLogConfig("logback-blue.xml");
 
         try {
-            MavenClasspathUtil.extendPluginClasspath(testClasspathElements());
+            MavenUtil.extendPluginClasspath(testClasspathElements());
             run();
         } catch (Throwable e) {
             handleException("Problem running.", e);

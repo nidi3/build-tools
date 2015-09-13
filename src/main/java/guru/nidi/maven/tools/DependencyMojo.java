@@ -31,6 +31,7 @@ import java.io.*;
 
 /**
  * Create a graphics for the dependencies of a project.
+ * The <a href="http://www.graphviz.org/">Graphviz</a> library must be installed and be available on the path.
  *
  * @goal dependency
  */

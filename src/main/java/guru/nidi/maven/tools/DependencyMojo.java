@@ -42,20 +42,36 @@ public class DependencyMojo extends AbstractDependencyMojo {
             try {
                 deleteOutput();
                 createFiles(project.getArtifact());
-                if (!simple) {
-                    final Server server = new Server(8888);
-                    final ServletContextHandler handler = new ServletContextHandler();
-                    final ServletHolder sh = new ServletHolder(new ServingServlet());
-                    handler.addServlet(sh, "/*");
-                    server.setHandler(handler);
-                    server.setStopAtShutdown(true);
-                    server.start();
-                    server.join();
+                if (simple) {
+                    copyPng();
+                } else {
+                    startServer();
                 }
             } catch (Exception e) {
                 throw new MojoExecutionException("Could not execute goal", e);
             }
         }
+    }
+
+    private void startServer() throws Exception {
+        final Server server = new Server(8888);
+        final ServletContextHandler handler = new ServletContextHandler();
+        final ServletHolder sh = new ServletHolder(new ServingServlet());
+        handler.addServlet(sh, "/*");
+        server.setHandler(handler);
+        server.setStopAtShutdown(true);
+        server.start();
+        server.join();
+    }
+
+    private void copyPng() throws IOException {
+        final InputStream in = new FileInputStream(new File(htmlDir(), toString(project.getArtifact()) + ".png"));
+        final File outFile = new File("target/dependencies.png");
+        outFile.getParentFile().mkdirs();
+        final OutputStream out = new FileOutputStream(outFile);
+        copy(in, out);
+        in.close();
+        out.close();
     }
 
     private void createFiles(Artifact artifact) {

@@ -240,7 +240,6 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         }
     }
 
-
     private String styleOf(Artifact artifact) {
         final DepInfo di = deps.get(artifact.getScope());
         String style = "color=" + (di == null ? "black" : di.color);
@@ -342,26 +341,25 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private void createHtml(File f) throws IOException {
-        final File output = fileEnding(f, htmlDir(), ".html");
-        if (!output.exists()) {
-            final FileOutputStream fos = new FileOutputStream(output);
-            final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, "utf-8"));
-            out.println("<html><body>");
-            out.flush();
-            if (simple) {
+        if (!simple) {
+            final File output = fileEnding(f, htmlDir(), ".html");
+            if (!output.exists()) {
+                final FileOutputStream fos = new FileOutputStream(output);
+                final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, "utf-8"));
+                out.println("<html><body>");
+                out.flush();
                 out.println("<img src='./" + fileEnding(f, ".png") + "'></img>");
-            } else {
                 final FileInputStream map = new FileInputStream(fileEnding(f, outputDir(), ".map"));
                 copy(map, fos);
                 map.close();
                 out.println("<img src='./" + fileEnding(f, ".png") + "' usemap='#" + fileEnding(f, "") + "'></img>");
+                out.println("</body></html>");
+                out.close();
             }
-            out.println("</body></html>");
-            out.close();
         }
     }
 
-    private void copy(InputStream in, OutputStream out) throws IOException {
+    protected void copy(InputStream in, OutputStream out) throws IOException {
         final byte[] buf = new byte[10000];
         int read;
         while ((read = in.read(buf)) > 0) {

@@ -33,8 +33,6 @@ import java.util.concurrent.TimeUnit;
  * @requiresDependencyResolution test
  */
 public abstract class AbstractDependencyMojo extends AbstractMojo {
-    protected static final File OUTPUT_DIR = new File("target/dependencyGraph");
-    protected static final File HTML_DIR = new File(OUTPUT_DIR, "html");
 
     /**
      * @parameter expression="${project}"
@@ -79,7 +77,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     protected boolean optional = false;
 
     /**
-     * A comma/space separated list of scopes to be displayed.
+     * A comma separated list of scopes to be displayed.
      *
      * @parameter expression="${scopes}"
      */
@@ -92,6 +90,14 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
      * @parameter expression="${simple}"
      */
     protected boolean simple;
+
+    /**
+     * Clear already calculated images.
+     *
+     * @parameter expression="${clear}"
+     */
+    protected boolean clear = false;
+
 
     private ArtifactFilter artifactFilter;
 
@@ -116,25 +122,24 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         return s == null || s.length() == 0;
     }
 
+    private File outputDir() {
+        return new File(System.getProperty("java.io.tmpdir") + "/dependencyGraph", optional + "-" + simple + "-" + scopesString() + "-" + maxDepth);
+    }
+
+    private String scopesString() {
+        return scopes == null ? "[]" : Arrays.asList(scopes.split(",")).toString().replace(" ", "");
+    }
+
+    protected File htmlDir() {
+        return new File(outputDir(), "html");
+    }
+
     protected void deleteOutput() throws IOException {
-        OUTPUT_DIR.mkdirs();
-        final File props = new File(OUTPUT_DIR, "config.properties");
-        final Properties p = new Properties();
-        if (props.exists()) {
-            p.load(new FileInputStream(props));
-            if (Boolean.parseBoolean(p.getProperty("optional")) != optional ||
-                    Boolean.parseBoolean(p.getProperty("simple")) != simple ||
-                    !p.getProperty("scopes").equals(scopes) ||
-                    Integer.parseInt(p.getProperty("maxDepth")) != maxDepth) {
-                deleteAll(OUTPUT_DIR);
-            }
+        outputDir().mkdirs();
+        if (clear) {
+            deleteAll(outputDir());
         }
-        p.setProperty("optional", Boolean.toString(optional));
-        p.setProperty("simple", Boolean.toString(simple));
-        p.setProperty("scopes", scopes);
-        p.setProperty("maxDepth", Integer.toString(maxDepth));
-        p.store(new FileOutputStream(props), null);
-        HTML_DIR.mkdirs();
+        htmlDir().mkdirs();
     }
 
     private void deleteAll(File dir) {
@@ -196,7 +201,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private File fileFor(Artifact artifact) {
-        return new File(OUTPUT_DIR, toString(artifact) + ".dot");
+        return new File(outputDir(), toString(artifact) + ".dot");
     }
 
     private Collection<Artifact> calcDependencies(Artifact artifact) {
@@ -260,7 +265,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     protected File[] findDotFiles() {
-        return OUTPUT_DIR.listFiles(new FileFilter() {
+        return outputDir().listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
                 return file.getName().endsWith(".dot");
@@ -269,6 +274,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     protected void executeDots(File[] files) {
+        getLog().info("Executing dot files...");
         final ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         for (final File f : files) {
             es.submit(new Runnable() {
@@ -291,9 +297,9 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private void executeDot(File f) throws IOException, InterruptedException {
-        final File png = fileEnding(f, HTML_DIR, ".png");
-        final File map = fileEnding(f, OUTPUT_DIR, ".map");
-        if (!png.exists() || !map.exists()) {
+        final File png = fileEnding(f, htmlDir(), ".png");
+        final File map = fileEnding(f, outputDir(), ".map");
+        if (!png.exists() || (!simple && !map.exists())) {
             final List<String> args = new ArrayList<String>(Arrays.asList("dot", f.getName(), "-Tpng", "-o" + png.getAbsolutePath()));
             if (!simple) {
                 args.addAll(Arrays.asList("-Tcmapx", "-o" + map.getAbsolutePath()));
@@ -336,7 +342,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private void createHtml(File f) throws IOException {
-        final File output = fileEnding(f, HTML_DIR, ".html");
+        final File output = fileEnding(f, htmlDir(), ".html");
         if (!output.exists()) {
             final FileOutputStream fos = new FileOutputStream(output);
             final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, "utf-8"));
@@ -345,7 +351,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
             if (simple) {
                 out.println("<img src='./" + fileEnding(f, ".png") + "'></img>");
             } else {
-                final FileInputStream map = new FileInputStream(fileEnding(f, OUTPUT_DIR, ".map"));
+                final FileInputStream map = new FileInputStream(fileEnding(f, outputDir(), ".map"));
                 copy(map, fos);
                 map.close();
                 out.println("<img src='./" + fileEnding(f, ".png") + "' usemap='#" + fileEnding(f, "") + "'></img>");

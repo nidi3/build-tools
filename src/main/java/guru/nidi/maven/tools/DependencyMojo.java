@@ -59,7 +59,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
     }
 
     private void createFiles(Artifact artifact) {
-        File file = new File(HTML_DIR, toString(artifact) + ".html");
+        File file = new File(htmlDir(), toString(artifact) + ".html");
         try {
             writeComplete(artifact);
             final File[] files = findDotFiles();
@@ -99,7 +99,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
                         : path;
                 final String file = query + ".html";
 
-                final File source = new File(HTML_DIR, file);
+                final File source = new File(htmlDir(), file);
                 if (!source.exists()) {
                     final String[] parts = query.split(":");
                     if (parts.length < 3) {
@@ -107,6 +107,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
                         return;
                     }
                     createFiles(parts);
+                    getLog().info("Files created.");
                 }
                 serveResource(file, res);
             }
@@ -138,7 +139,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
         }
 
         private void serveResource(String path, HttpServletResponse res) throws IOException {
-            final File source = new File(HTML_DIR, path);
+            final File source = new File(htmlDir(), path);
             if (source.length() == 0) {
                 res.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

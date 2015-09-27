@@ -23,6 +23,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.*;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
@@ -33,7 +34,7 @@ import java.util.List;
 /**
  *
  */
-class MavenUtil {
+public class MavenUtil {
     private MavenUtil() {
     }
 
@@ -51,15 +52,20 @@ class MavenUtil {
         }
     }
 
-    public static File resolveArtifactFile(MavenSession session, RepositorySystem repository, String groupId, String artifactId, String version, String type) {
+    public static Artifact resolveArtifactFile(MavenSession session, RepositorySystem repository, String groupId, String artifactId, String version, String type) {
         final DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, version, "compile", type, "", new DefaultArtifactHandler(type));
-        return resolveArtifact(session, repository, artifact, false, null).getOriginatingArtifact().getFile();
+        final ArtifactResolutionResult result = resolveArtifact(session, repository, artifact, false, null);
+        for (Artifact a : result.getArtifacts()) {
+            if (a.equals(artifact)) {
+                return a;
+            }
+        }
+        throw new IllegalArgumentException(artifact + " could not be resolved");
     }
 
     public static ArtifactResolutionResult resolveArtifact(MavenSession session, RepositorySystem repository, Artifact artifact, boolean transitive, ArtifactFilter resolutionFilter) {
         artifact.setArtifactHandler(new DefaultArtifactHandler(artifact.getType()));
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request
+        ArtifactResolutionRequest request = new ArtifactResolutionRequest()
                 .setArtifact(artifact)
                 .setResolveRoot(true)
                 .setServers(session.getRequest().getServers())
@@ -72,5 +78,13 @@ class MavenUtil {
                 .setResolutionFilter(resolutionFilter);
         //.setListeners(Arrays.<ResolutionListener>asList(new DebugResolutionListener(new ConsoleLogger())));
         return repository.resolve(request);
+    }
+
+    public static MavenProject projectFromArtifact(MavenSession session, ProjectBuilder projectBuilder, Artifact artifact, boolean resolveDependencies) throws ProjectBuildingException {
+        final ProjectBuildingRequest request = new DefaultProjectBuildingRequest()
+                .setLocalRepository(session.getLocalRepository())
+                .setRepositorySession(session.getRepositorySession())
+                .setResolveDependencies(resolveDependencies);
+        return projectBuilder.build(artifact, request).getProject();
     }
 }

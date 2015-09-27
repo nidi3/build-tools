@@ -20,7 +20,9 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.project.*;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.repository.RepositorySystem;
 
 import java.io.*;
@@ -171,13 +173,8 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
             out.println("}");
             out.println("rankdir=LR;");
             out.println(quoted(artifact) + " [URL=\"/" + toString(artifact) + ".html\"];");
-            final ProjectBuildingResult build;
             try {
-                final DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
-                request.setLocalRepository(session.getLocalRepository());
-                request.setRepositorySession(session.getRepositorySession());
-                build = projectBuilder.build(artifact, request);
-                final MavenProject project = build.getProject();
+                final MavenProject project = MavenUtil.projectFromArtifact(session, projectBuilder, artifact, false);
                 final Artifact parent = project.getParentArtifact();
                 if (parent != null) {
                     out.println("{ rank=same; " + quoted(artifact) + "; " + quoted(parent) + "; }");

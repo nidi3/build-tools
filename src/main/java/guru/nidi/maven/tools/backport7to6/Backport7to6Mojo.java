@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.backport7to6;
 
+import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -29,12 +30,11 @@ public class Backport7to6Mojo extends AbstractBackport7to6Mojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         final File classes = new File(project.getBuild().getOutputDirectory());
         try {
+            MavenUtil.extendPluginClasspath(project.getCompileClasspathElements());
             final String base = project.getBasedir().getParentFile().getAbsolutePath();
-            new Backporter7to6(getChecker(), getLog()).backportFiles(classes, base);
+            new Backporter7to6(getChecker(project), getLog()).backportFiles(classes, base);
         } catch (Exception e) {
             throw new MojoExecutionException("Could not backport", e);
         }
     }
-
-
 }

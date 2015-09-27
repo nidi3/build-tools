@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.backport7to6;
 
+import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -55,20 +56,20 @@ public abstract class AbstractBackport7to6Mojo extends AbstractMojo {
      */
     protected RepositorySystem repository;
 
-    protected SignatureChecker getChecker() throws IOException {
-        final File signature = MavenUtil.resolveArtifactFile(session, repository, "org.codehaus.mojo.signature", "java16", "1.1", "signature");
-        final SignatureChecker checker = new SignatureChecker(new FileInputStream(signature), buildPackageList(), new SnifferLogger());
+    protected SignatureChecker getChecker(MavenProject project) throws IOException {
+        final File signature = MavenUtil.resolveArtifactFile(session, repository, "org.codehaus.mojo.signature", "java16", "1.1", "signature").getFile();
+        final SignatureChecker checker = new SignatureChecker(new FileInputStream(signature), buildPackageList(project), new SnifferLogger());
         checker.setSourcePath(Arrays.asList(new File(".")));
         return checker;
     }
 
-    private Set<String> buildPackageList() throws IOException {
+    private Set<String> buildPackageList(MavenProject project) throws IOException {
         ClassListBuilder plb = new ClassListBuilder(new SnifferLogger());
-        apply(plb);
+        apply(project, plb);
         return plb.getPackages();
     }
 
-    private void apply(ClassFileVisitor v) throws IOException {
+    private void apply(MavenProject project, ClassFileVisitor v) throws IOException {
         v.process(new File(project.getBuild().getOutputDirectory()));
         for (Artifact artifact : project.getArtifacts()) {
             if (artifact.getArtifactHandler().isAddedToClasspath()) {
@@ -107,7 +108,7 @@ public abstract class AbstractBackport7to6Mojo extends AbstractMojo {
         }
 
         public void error(String message) {
-                getLog().error(message);
+            getLog().error(message);
         }
 
         public void error(String message, Throwable t) {

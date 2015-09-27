@@ -6,6 +6,9 @@ Contains some goals to support maven builds.
 - consoleInput: Set a property to a value given interactively.
 - setProperty: Set java runtime properties.
 - runSpring: Startup / shutdown a spring container.
+- runMain: Run any main method.
+- dependency: Create a graphical view of the dependencies of a project.
+- backport7to6: Make a project compiled with Java 7 runnable on Java 6.
 - An ssh tunnel ant task to be used together with the antrun plugin:
 
 1. Add this plugin to the dependencies of the antrun plugin.

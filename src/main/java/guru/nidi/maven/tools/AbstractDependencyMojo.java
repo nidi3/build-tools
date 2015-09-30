@@ -129,7 +129,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private String scopesString() {
-        return scopes == null ? "[]" : Arrays.asList(scopes.split(",")).toString().replace(" ", "");
+        return scopes == null ? "" : Arrays.asList(scopes.split(",")).toString().replace(" ", "");
     }
 
     protected File htmlDir() {
@@ -157,7 +157,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     protected void writeComplete(Artifact artifact) throws IOException {
         final Collection<Artifact> res = calcDependencies(artifact);
         if (res != null) {
-            final PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileFor(artifact)), "utf-8"));
+            final PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileFor(artifact, ".dot")), "utf-8"));
             out.println("digraph " + quoted(artifact) + "{");
             out.println("node [shape=box];");
             out.println("subgraph {");
@@ -172,13 +172,13 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
             }
             out.println("}");
             out.println("rankdir=LR;");
-            out.println(quoted(artifact) + " [URL=\"/" + toString(artifact) + ".html\"];");
+            out.println(quoted(artifact) + " [URL=\"/" + filenameFor(artifact, ".html") + "\"];");
             try {
                 final MavenProject project = MavenUtil.projectFromArtifact(session, projectBuilder, artifact, false);
                 final Artifact parent = project.getParentArtifact();
                 if (parent != null) {
                     out.println("{ rank=same; " + quoted(artifact) + "; " + quoted(parent) + "; }");
-                    out.println(quoted(parent) + " [URL=\"/" + toString(parent) + ".html\"];");
+                    out.println(quoted(parent) + " [URL=\"/" + filenameFor(parent, ".html") + "\"];");
                     out.println(quoted(artifact) + "->" + quoted(parent) + ";");
                     writeComplete(parent);
                 }
@@ -197,8 +197,12 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         }
     }
 
-    private File fileFor(Artifact artifact) {
-        return new File(outputDir(), toString(artifact) + ".dot");
+    private File fileFor(Artifact artifact, String suffix) {
+        return new File(outputDir(), filenameFor(artifact, suffix));
+    }
+
+    protected String filenameFor(Artifact artifact, String suffix) {
+        return toString(artifact).replace(":", "$") + suffix;
     }
 
     private Collection<Artifact> calcDependencies(Artifact artifact) {
@@ -224,12 +228,12 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         if (res != null) {
             for (Artifact a : ordered(res)) {
                 out.println("edge [" + styleOf(a) + "];");
-                out.println(quoted(a) + " [URL=\"/" + toString(a) + ".html\"];");
+                out.println(quoted(a) + " [URL=\"/" + filenameFor(a, ".html")+"\"];");
                 out.println(quoted(artifact) + "->" + quoted(a) + ";");
                 if (!traversed.contains(toString(a)) && depth > 1) {
                     traversed.add(toString(a));
                     writeDependencies(out, a, calcDependencies(a), traversed, depth - 1);
-                    if (!simple && !fileFor(a).exists()) {
+                    if (!simple && !fileFor(a, ".dot").exists()) {
                         writeComplete(a);
                     }
                 }

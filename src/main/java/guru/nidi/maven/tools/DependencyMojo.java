@@ -65,7 +65,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
     }
 
     private void copyPng() throws IOException {
-        final InputStream in = new FileInputStream(new File(htmlDir(), toString(project.getArtifact()) + ".png"));
+        final InputStream in = new FileInputStream(new File(htmlDir(), filenameFor(project.getArtifact(), ".png")));
         final File outFile = new File("target/dependencies.png");
         outFile.getParentFile().mkdirs();
         final OutputStream out = new FileOutputStream(outFile);
@@ -75,7 +75,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
     }
 
     private void createFiles(Artifact artifact) {
-        File file = new File(htmlDir(), toString(artifact) + ".html");
+        File file = new File(htmlDir(), filenameFor(artifact, ".html"));
         try {
             writeComplete(artifact);
             final File[] files = findDotFiles();
@@ -102,9 +102,9 @@ public class DependencyMojo extends AbstractDependencyMojo {
     private class ServingServlet extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-            final String path = req.getPathInfo() == null || req.getPathInfo().equals("/")
+            final String path = (req.getPathInfo() == null || req.getPathInfo().equals("/")
                     ? DependencyMojo.this.toString(project.getArtifact())
-                    : req.getPathInfo().substring(1);
+                    : req.getPathInfo().substring(1)).replace(':','$');
             if (path.endsWith(".png")) {
                 serveResource(path, res);
             } else {
@@ -117,7 +117,7 @@ public class DependencyMojo extends AbstractDependencyMojo {
 
                 final File source = new File(htmlDir(), file);
                 if (!source.exists()) {
-                    final String[] parts = query.split(":");
+                    final String[] parts = query.split("\\$");
                     if (parts.length < 3) {
                         res.sendError(HttpServletResponse.SC_NOT_FOUND);
                         return;

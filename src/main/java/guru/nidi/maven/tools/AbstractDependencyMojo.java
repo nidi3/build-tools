@@ -129,7 +129,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     }
 
     private String scopesString() {
-        return scopes == null ? "" : Arrays.asList(scopes.split(",")).toString().replace(" ", "");
+        return scopes == null ? "[]" : Arrays.asList(scopes.split(",")).toString().replace(" ", "");
     }
 
     protected File htmlDir() {
@@ -172,13 +172,13 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
             }
             out.println("}");
             out.println("rankdir=LR;");
-            out.println(quoted(artifact) + " [URL=\"/" + filenameFor(artifact, ".html") + "\"];");
+            out.println(quoted(artifact) + " [URL=\"/" + toString(artifact)+ ".html\"];");
             try {
                 final MavenProject project = MavenUtil.projectFromArtifact(session, projectBuilder, artifact, false);
                 final Artifact parent = project.getParentArtifact();
                 if (parent != null) {
                     out.println("{ rank=same; " + quoted(artifact) + "; " + quoted(parent) + "; }");
-                    out.println(quoted(parent) + " [URL=\"/" + filenameFor(parent, ".html") + "\"];");
+                    out.println(quoted(parent) + " [URL=\"/" + toString(parent)+".html\"];");
                     out.println(quoted(artifact) + "->" + quoted(parent) + ";");
                     writeComplete(parent);
                 }
@@ -228,7 +228,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         if (res != null) {
             for (Artifact a : ordered(res)) {
                 out.println("edge [" + styleOf(a) + "];");
-                out.println(quoted(a) + " [URL=\"/" + filenameFor(a, ".html")+"\"];");
+                out.println(quoted(a) + " [URL=\"/" + toString(a)+ ".html\"];");
                 out.println(quoted(artifact) + "->" + quoted(a) + ";");
                 if (!traversed.contains(toString(a)) && depth > 1) {
                     traversed.add(toString(a));
@@ -349,11 +349,10 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
                 final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, "utf-8"));
                 out.println("<html><body>");
                 out.flush();
-                out.println("<img src='./" + fileEnding(f, ".png") + "'></img>");
                 final FileInputStream map = new FileInputStream(fileEnding(f, outputDir(), ".map"));
                 copy(map, fos);
                 map.close();
-                out.println("<img src='./" + fileEnding(f, ".png") + "' usemap='#" + fileEnding(f, "") + "'></img>");
+                out.println("<img src='./" + fileEnding(f, ".png") + "' usemap='#" + fileEnding(f, "").replace('$', ':') + "'></img>");
                 out.println("</body></html>");
                 out.close();
             }

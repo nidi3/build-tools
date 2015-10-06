@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.dependency;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -65,22 +65,29 @@ public class DependencyMojo extends AbstractDependencyMojo {
     }
 
     private void copyPng() throws IOException {
-        final InputStream in = new FileInputStream(new File(htmlDir(), filenameFor(project.getArtifact(), ".png")));
+        final InputStream in = new FileInputStream(new File(htmlDir(), formatter().filenameFor(project.getArtifact(), ".png")));
         final File outFile = new File("target/dependencies.png");
         outFile.getParentFile().mkdirs();
         final OutputStream out = new FileOutputStream(outFile);
-        copy(in, out);
+        IoUtils.copy(in, out);
         in.close();
         out.close();
     }
 
     private void createFiles(Artifact artifact) {
-        File file = new File(htmlDir(), filenameFor(artifact, ".html"));
+        File file = new File(htmlDir(), formatter().filenameFor(artifact, ".html"));
         try {
-            writeComplete(artifact);
-            final File[] files = findDotFiles();
-            executeDots(files);
-            createHtmls(files);
+            final DotCreator dotCreator = new DotCreator(dotDir(), formatter(), parameters(), context());
+            dotCreator.writeComplete(artifact);
+            final DotProcessor dotProcessor = new DotProcessor(dotDir(), htmlDir(), simple);
+            final File[] files = dotProcessor.findDotFiles();
+            if (!clientSide) {
+                getLog().info("Executing dot files...");
+                dotProcessor.executeDots(files);
+            }
+            if (!simple) {
+                new HtmlCreator(dotDir(), htmlDir(), clientSide).createHtmls(files);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             writeNotFound(file);
@@ -103,8 +110,8 @@ public class DependencyMojo extends AbstractDependencyMojo {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
             final String path = (req.getPathInfo() == null || req.getPathInfo().equals("/")
-                    ? DependencyMojo.this.toString(project.getArtifact())
-                    : req.getPathInfo().substring(1)).replace(':','$');
+                    ? formatter().toString(project.getArtifact())
+                    : req.getPathInfo().substring(1)).replace(':', '$');
             if (path.endsWith(".png")) {
                 serveResource(path, res);
             } else {
@@ -174,4 +181,5 @@ public class DependencyMojo extends AbstractDependencyMojo {
             }
         }
     }
+
 }

@@ -84,6 +84,7 @@ public class MavenUtil {
         final ProjectBuildingRequest request = new DefaultProjectBuildingRequest()
                 .setLocalRepository(session.getLocalRepository())
                 .setRepositorySession(session.getRepositorySession())
+                .setSystemProperties(System.getProperties())
                 .setResolveDependencies(resolveDependencies);
         return projectBuilder.build(artifact, request).getProject();
     }

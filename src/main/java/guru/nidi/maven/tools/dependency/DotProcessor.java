@@ -52,6 +52,7 @@ public class DotProcessor {
 
     protected void executeDots(File[] files) {
         final ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final List<String> messages = new ArrayList<String>();
         for (final File f : files) {
             es.submit(new Runnable() {
                 @Override
@@ -59,7 +60,7 @@ public class DotProcessor {
                     try {
                         executeDot(f);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        messages.add(e.getMessage());
                     }
                 }
             });
@@ -69,6 +70,9 @@ public class DotProcessor {
             es.awaitTermination(10, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        if(!messages.isEmpty()) {
+            throw new RuntimeException("Problem(s) generating images: " + messages);
         }
     }
 
@@ -100,6 +104,9 @@ public class DotProcessor {
 //            }
 //        }).start();
             dot.waitFor();
+            if (!png.exists()) {
+                throw new IOException("Image was not created. Make sure Graphviz is installed correctly.");
+            }
         }
     }
 

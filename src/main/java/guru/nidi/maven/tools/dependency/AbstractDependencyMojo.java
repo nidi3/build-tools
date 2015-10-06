@@ -136,6 +136,11 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
      */
     protected String formats = "";
 
+    /**
+     * @parameter expression="${outputFile}"
+     */
+    protected File outputFile = new File("target/dependencies.png");
+
     private ArtifactFormatter formatter;
 
     protected File dotDir() {

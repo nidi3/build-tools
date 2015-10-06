@@ -46,7 +46,7 @@ public class Parameters implements ArtifactFilter {
         return maxDepth;
     }
 
-    public boolean isInScope(String s){
+    public boolean isInScope(String s) {
         return scopes == null || scopes.contains(s);
     }
 
@@ -58,7 +58,7 @@ public class Parameters implements ArtifactFilter {
         if (artifact.getScope() != null && (scopes != null && !scopes.contains(artifact.getScope()))) {
             return false;
         }
-        if (!new ArtifactMatcher(includes).matches(artifact)) {
+        if (includes != null && !new ArtifactMatcher(includes).matches(artifact)) {
             return false;
         }
         if (new ArtifactMatcher(excludes).matches(artifact)) {

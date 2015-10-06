@@ -65,13 +65,17 @@ public class DependencyMojo extends AbstractDependencyMojo {
     }
 
     private void copyPng() throws IOException {
-        final InputStream in = new FileInputStream(new File(htmlDir(), formatter().filenameFor(project.getArtifact(), ".png")));
-        final File outFile = new File("target/dependencies.png");
-        outFile.getParentFile().mkdirs();
-        final OutputStream out = new FileOutputStream(outFile);
-        IoUtils.copy(in, out);
-        in.close();
-        out.close();
+        final File png = new File(htmlDir(), formatter().filenameFor(project.getArtifact(), ".png"));
+        if (!png.exists()) {
+            getLog().warn(png + " was not generated.");
+        } else {
+            final InputStream in = new FileInputStream(png);
+            outputFile.getParentFile().mkdirs();
+            final OutputStream out = new FileOutputStream(outputFile);
+            IoUtils.copy(in, out);
+            in.close();
+            out.close();
+        }
     }
 
     private void createFiles(Artifact artifact) {

@@ -15,20 +15,18 @@
  */
 package guru.nidi.maven.tools;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.lang.reflect.Method;
 
-/**
- * @goal runMain
- */
+@Mojo(name = "runMain", requiresDependencyResolution = ResolutionScope.TEST)
 public class MainRunnerMojo extends AbstractRunnerMojo {
-    /**
-     * @parameter expression="${mainClass}"
-     * @required
-     */
+    @Parameter(property = "runner.mainClass", required = true)
     private String mainClass;
-    /**
-     * @parameter expression="${arguments}"
-     */
+
+    @Parameter(property = "runner.arguments")
     private String arguments;
 
     @Override

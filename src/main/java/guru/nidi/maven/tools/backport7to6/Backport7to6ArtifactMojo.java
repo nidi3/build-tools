@@ -19,6 +19,10 @@ import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
@@ -26,38 +30,18 @@ import org.apache.maven.project.ProjectBuildingException;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @goal backport7to6-artifact
- * @phase prepare-package
- */
+@Mojo(name="backport7to6-artifact",defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Component
     protected ProjectBuilder projectBuilder;
 
-    /**
-     * @parameter expression="${groupId}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "backport.groupId", required = true)
     private String groupId;
 
-    /**
-     * @parameter expression="${artifactId}"
-     * @required
-     * @readonly
-     */
-
+    @Parameter(property = "backport.artifactId", required = true)
     private String artifactId;
 
-    /**
-     * @parameter expression="${version}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "backport.version", required = true)
     private String version;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

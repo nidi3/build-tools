@@ -27,7 +27,6 @@ import java.util.List;
  *
  * @author Mike Elmsly mike.elmsly@ihug.co.nz
  * @version $Revision: 1.0 $
- * @created July 5, 2004
  * @since Ant 1.6.1
  */
 public class SSHTunnel extends SSHBase implements TaskContainer {

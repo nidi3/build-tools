@@ -18,46 +18,30 @@ package guru.nidi.maven.tools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.IOException;
 
-/**
- * @goal consoleInput
- */
+@Mojo(name = "consoleInput")
 public class ConsoleInputMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
+    @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${prompt}"
-     * @required
-     */
+    @Parameter(property = "input.prompt", required = true)
     private String prompt;
 
-    /**
-     * @parameter expression="${targetProperty}"
-     * @required
-     */
+    @Parameter(property = "input.targetProperty", required = true)
     private String targetProperty;
 
-    /**
-     * @parameter expression="${defaultValue}"
-     */
+    @Parameter(property = "input.defaultValue")
     protected String defaultValue;
 
-    /**
-     * @parameter expression="${showIfTargetSet}"
-     */
+    @Parameter(property = "input.showIfTargetSet")
     private boolean showIfTargetSet;
 
-    /**
-     * @parameter expression="${showInput}"
-     */
+    @Parameter(property = "input.showInput")
     private boolean showInput = true;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

@@ -19,6 +19,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -33,8 +35,8 @@ import java.io.*;
  * Create a graphics for the dependencies of a project.
  * The <a href="http://www.graphviz.org/">Graphviz</a> library must be installed and be available on the path.
  *
- * @goal dependency
  */
+@Mojo(name="dependency",requiresDependencyResolution = ResolutionScope.TEST)
 public class DependencyMojo extends AbstractDependencyMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {

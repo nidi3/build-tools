@@ -18,15 +18,12 @@ package guru.nidi.maven.tools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
-/**
- * @goal setProperty
- */
+@Mojo(name = "setProperty")
 public class SetPropertyMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${properties}"
-     * @required
-     */
+    @Parameter(property = "set.properties", required = true)
     private String properties;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

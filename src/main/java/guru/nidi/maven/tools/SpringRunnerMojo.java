@@ -15,25 +15,22 @@
  */
 package guru.nidi.maven.tools;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * @goal runSpring
- */
+@Mojo(name = "runSpring", requiresDependencyResolution = ResolutionScope.TEST)
 public class SpringRunnerMojo extends AbstractRunnerMojo {
     private final static String APP_CONTEXT_CLASS = "org.springframework.context.support.FileSystemXmlApplicationContext";
-    /**
-     * @parameter expression="${contextFile}"
-     * @required
-     */
+
+    @Parameter(property = "run.contextFile", required = true)
     private File contextFile;
 
-    /**
-     * @parameter expression="${profiles}"
-     * @required
-     */
+    @Parameter(property = "run.profiles", required = true)
     private String profiles;
 
     @Override

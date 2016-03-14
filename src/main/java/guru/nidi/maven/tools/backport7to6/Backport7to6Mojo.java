@@ -18,29 +18,21 @@ package guru.nidi.maven.tools.backport7to6;
 import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @goal backport7to6
- * @phase prepare-package
- * @requiresDependencyResolution compile
- */
+@Mojo(name = "backport7to6", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class Backport7to6Mojo extends AbstractBackport7to6Mojo {
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Component
     private MavenProjectHelper projectHelper;
 
     /**
      * If a separate artifact with classifier 'jdk6' should be created.
-     *
-     * @parameter expression="${classified}"
      */
+    @Parameter(property = "backport.classified")
     private boolean classified;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

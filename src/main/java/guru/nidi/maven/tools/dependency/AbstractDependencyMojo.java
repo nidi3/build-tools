@@ -17,6 +17,8 @@ package guru.nidi.maven.tools.dependency;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
@@ -25,101 +27,74 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * @requiresDependencyResolution test
- */
 public abstract class AbstractDependencyMojo extends AbstractMojo {
 
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
+    @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
 
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Parameter(defaultValue = "${session}", readonly = true)
     protected MavenSession session;
 
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Component
     protected RepositorySystem repository;
 
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Component
     protected ProjectBuilder projectBuilder;
 
     /**
      * Maximum depth of displayed dependencies.
-     *
-     * @parameter expression="${maxDepth}"
      */
+    @Parameter(property = "maxDepth")
     protected int maxDepth = 3;
 
     /**
      * If the dot file should be interpreted client side in the browser.
      * If false, graphViz must be installed on the machine and available on PATH.
-     *
-     * @parameter expression="${clientSide}"
      */
+    @Parameter(property = "clientSide")
     protected boolean clientSide;
 
     /**
      * Display optional dependencies.
-     *
-     * @parameter expression="${optional}"
      */
+    @Parameter(property = "optional")
     protected boolean optional = false;
 
     /**
      * A comma separated list of scopes to be displayed.
-     *
-     * @parameter expression="${scopes}"
      */
+    @Parameter(property = "scopes")
     protected String scopes;
 
     /**
      * Create a simple image or a html file with a clickable image map.
      * If true, a server will be started on port 8888.
-     *
-     * @parameter expression="${simple}"
      */
+    @Parameter(property = "simple")
     protected boolean simple;
 
     /**
      * Clear already calculated images.
-     *
-     * @parameter expression="${clear}"
      */
+    @Parameter(property = "clear")
     protected boolean clear = false;
 
     /**
      * Dependencies that should NOT be shown. Is a regex of the form
      * [groupId]:[artifactId]:[type]:[version]
-     *
-     * @parameter expression="${excludes}"
      */
+    @Parameter(property = "excludes")
     protected String excludes;
 
     /**
      * Dependencies that should be shown takes precedence over excludes. Is a regex of the form
      * [groupId]:[artifactId]:[type]:[version]
-     *
-     * @parameter expression="${includes}"
      */
+    @Parameter(property = "includes")
     protected String includes;
 
     /**
-     * Formatting the name of the artifacts. A comma separated string of the form [filter]->[format].
+     * Formatting the name of the artifacts. A comma separated string of the form [filter]-&gt;[format].
      * [filter] is a regex of the same form as includes/excludes.
      * [format] is a kind of printf format with the following tags:
      * <ul>
@@ -130,15 +105,14 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
      * <li>%n newline</li>
      * <li>%[len]d[s] The description of the project with linebreaks after at least [len] characters. If [s] is given, only the first sentence of the description is used.</li>
      * </ul>
-     * Example: "guru\.nidi.*->%a%n%20d" Format everything with a groupId starting with "guru.nidi" as artifactId, newline, description with linebreaks every 20 characters.
-     *
-     * @parameter expression="${formats}"
+     * Example: "guru\.nidi.*-&gt;%a%n%20d" Format everything with a groupId starting with "guru.nidi" as artifactId, newline, description with linebreaks every 20 characters.
      */
+    @Parameter(property = "formats")
     protected String formats = "";
 
     /**
-     * @parameter expression="${outputFile}"
      */
+    @Parameter(property = "outputFile")
     protected File outputFile = new File("target/dependencies.png");
 
     private ArtifactFormatter formatter;

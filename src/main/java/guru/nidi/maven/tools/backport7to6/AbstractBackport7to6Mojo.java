@@ -19,6 +19,8 @@ import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.mojo.animal_sniffer.ClassFileVisitor;
@@ -36,24 +38,13 @@ import java.util.Set;
  *
  */
 public abstract class AbstractBackport7to6Mojo extends AbstractMojo {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
+    @Parameter(defaultValue = "${project}",readonly = true)
     protected MavenProject project;
 
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+    @Parameter(defaultValue = "${session}",readonly = true)
     protected MavenSession session;
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
+
+    @Component
     protected RepositorySystem repository;
 
     protected SignatureChecker getChecker(MavenProject project) throws IOException {

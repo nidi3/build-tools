@@ -50,9 +50,12 @@ class IoUtil {
         if (files != null) {
             for (final File file : files) {
                 if (file.isDirectory()) {
-                    zip(base + "/" + file.getName(), file, target);
+                    final String fullName = base + file.getName() + "/";
+                    target.putNextEntry(new ZipEntry(fullName));
+                    target.closeEntry();
+                    zip(fullName, file, target);
                 } else {
-                    target.putNextEntry(new ZipEntry(file.getName()));
+                    target.putNextEntry(new ZipEntry(base + file.getName()));
                     copy(new FileInputStream(file), target, false);
                     target.closeEntry();
                 }
@@ -69,6 +72,20 @@ class IoUtil {
         in.close();
         if (closeOut) {
             out.close();
+        }
+    }
+
+    public static void copyRecursively(File source, File target) throws IOException {
+        target.mkdirs();
+        final File[] files = source.listFiles();
+        if (files != null) {
+            for (final File file : files) {
+                if (file.isDirectory()) {
+                    copyRecursively(file, new File(target, file.getName()));
+                } else {
+                    copy(new FileInputStream(file), new FileOutputStream(new File(target, file.getName())), true);
+                }
+            }
         }
     }
 

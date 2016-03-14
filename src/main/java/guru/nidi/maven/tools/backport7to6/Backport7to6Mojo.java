@@ -18,8 +18,10 @@ package guru.nidi.maven.tools.backport7to6;
 import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @goal backport7to6
@@ -27,14 +29,41 @@ import java.io.File;
  * @requiresDependencyResolution compile
  */
 public class Backport7to6Mojo extends AbstractBackport7to6Mojo {
+    /**
+     * @component
+     * @required
+     * @readonly
+     */
+    private MavenProjectHelper projectHelper;
+
+    /**
+     * If a separate artifact with classifier 'jdk6' should be created.
+     *
+     * @parameter expression="${classified}"
+     */
+    private boolean classified;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         final File classes = new File(project.getBuild().getOutputDirectory());
         try {
             MavenUtil.extendPluginClasspath(project.getCompileClasspathElements());
             final String base = project.getBasedir().getParentFile().getAbsolutePath();
-            new Backporter7to6(getChecker(project), getLog()).backportFiles(classes, base);
+            if (classified) {
+                final File jdk6Classes = new File(classes.getParentFile(), "classes-jdk6");
+                IoUtil.copyRecursively(classes, jdk6Classes);
+                backport(base, jdk6Classes);
+                final File jar = new File(jdk6Classes.getParentFile(), project.getBuild().getFinalName() + "-jdk6.jar");
+                IoUtil.zip(jdk6Classes, jar);
+                projectHelper.attachArtifact(project, "jar", "jdk6", jar);
+            } else {
+                backport(base, classes);
+            }
         } catch (Exception e) {
             throw new MojoExecutionException("Could not backport", e);
         }
+    }
+
+    private boolean backport(String base, File target) throws IOException {
+        return new Backporter7to6(getChecker(project), getLog()).backportFiles(target, base);
     }
 }

@@ -17,10 +17,7 @@ package guru.nidi.maven.tools.backport7to6;
 
 import org.objectweb.asm.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  *
@@ -35,7 +32,7 @@ class Transform7to6 extends ClassVisitor implements Opcodes {
 
     public static boolean transform(File file, String filename) throws IOException {
         final FileInputStream fis = new FileInputStream(file);
-        final ClassReader in = new ClassReader(fis);
+        final ClassReader in = new ConstantPoolCheckingClassReader(fis);
         final ClassWriter out = new ContextClassloaderClassWriter(in, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         final Transform7to6 transform7to6 = new Transform7to6(filename, out);
         try {
@@ -90,6 +87,7 @@ class Transform7to6 extends ClassVisitor implements Opcodes {
             super(classReader, flags);
         }
 
+        @Override
         protected String getCommonSuperClass(final String type1, final String type2) {
             Class<?> c, d;
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -112,6 +110,29 @@ class Transform7to6 extends ClassVisitor implements Opcodes {
                 c = c.getSuperclass();
             } while (!c.isAssignableFrom(d));
             return c.getName().replace('.', '/');
+        }
+    }
+
+    private static class ConstantPoolCheckingClassReader extends ClassReader {
+        private static final int CLASS_TAG = 7;
+
+        public ConstantPoolCheckingClassReader(InputStream is) throws IOException {
+            super(is);
+            checkPool();
+        }
+
+        private void checkPool() {
+            char[] buf = new char[500];
+            for (int i = 0; i < getItemCount(); i++) {
+                final int index = getItem(i);
+                if (index > 0 && b[index - 1] == CLASS_TAG) {
+                    final String s = readUTF8(index, buf);
+                    if ("java/lang/ReflectiveOperationException".equals(s)) {
+                        throw new IllegalStateException("Class '" + getClassName() + "' references 'java/lang/ReflectiveOperationException'.\n" +
+                                "Probably in a construct like 'catch(InstantiationException | IllegalAccessException e)'");
+                    }
+                }
+            }
         }
     }
 }

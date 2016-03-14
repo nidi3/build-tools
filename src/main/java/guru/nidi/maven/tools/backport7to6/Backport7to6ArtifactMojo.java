@@ -52,6 +52,7 @@ public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
      */
 
     private String artifactId;
+
     /**
      * @parameter expression="${version}"
      * @required

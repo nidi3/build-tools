@@ -10,7 +10,7 @@
 
     <groupId>guru.nidi.maven.plugins</groupId>
     <artifactId>tools-maven-plugin</artifactId>
-    <version>1.0.20-SNAPSHOT</version>
+    <version>1.0.20</version>
     <packaging>maven-plugin</packaging>
 
 
@@ -122,7 +122,7 @@
         <connection>scm:git:https://github.com/nidi3/maven-tools</connection>
         <developerConnection>scm:git:https://github.com/nidi3/maven-tools</developerConnection>
         <url>https://github.com/nidi3/maven-tools</url>
-        <tag>HEAD</tag>
+        <tag>tools-maven-plugin-1.0.20</tag>
     </scm>
 
 </project>

@@ -24,7 +24,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import java.io.File;
 import java.io.IOException;
 
-@Mojo(name = "backport7to6", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "backport7to6", defaultPhase = LifecyclePhase.TEST_COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class Backport7to6Mojo extends AbstractBackport7to6Mojo {
     @Component
     private MavenProjectHelper projectHelper;

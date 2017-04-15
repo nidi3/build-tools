@@ -38,10 +38,10 @@ import java.util.Set;
  *
  */
 public abstract class AbstractBackport7to6Mojo extends AbstractMojo {
-    @Parameter(defaultValue = "${project}",readonly = true)
+    @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
 
-    @Parameter(defaultValue = "${session}",readonly = true)
+    @Parameter(defaultValue = "${session}", readonly = true)
     protected MavenSession session;
 
     @Component

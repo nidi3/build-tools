@@ -30,7 +30,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import java.io.File;
 import java.io.IOException;
 
-@Mojo(name="backport7to6-artifact",defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "backport7to6-artifact", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
     @Component
     protected ProjectBuilder projectBuilder;

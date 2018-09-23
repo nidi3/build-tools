@@ -15,18 +15,17 @@
  */
 package guru.nidi.maven.tools.dependency;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 class IoUtils {
-    private IoUtils(){}
-    public static File fileEnding(File file, File baseDir, String ending) {
+    private IoUtils() {
+    }
+
+    static File fileEnding(File file, File baseDir, String ending) {
         return new File(baseDir, fileEnding(file, ending));
     }
 
-    public static String fileEnding(File file, String ending) {
+    static String fileEnding(File file, String ending) {
         return file.getName().substring(0, file.getName().length() - 4) + ending;
     }
 
@@ -38,7 +37,7 @@ class IoUtils {
         }
     }
 
-    public static void deleteAll(File dir) {
+    static void deleteAll(File dir) {
         for (File f : dir.listFiles()) {
             if (f.isDirectory()) {
                 deleteAll(f);

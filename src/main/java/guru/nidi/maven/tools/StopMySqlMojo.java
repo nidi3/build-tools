@@ -19,17 +19,12 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-@Mojo(name = "setProperty")
-public class SetPropertyMojo extends AbstractMojo {
-    @Parameter(property = "set.properties", required = true)
-    private String properties;
+@Mojo(name = "stopMySql")
+public class StopMySqlMojo extends AbstractMojo {
+    @Parameter(property = "mysql.label", defaultValue = "mysql")
+    private String label;
 
     public void execute() {
-        String[] split = properties.split(",");
-        for (String s : split) {
-            String[] parts = s.split("=");
-            getLog().info("Setting Property " + parts[0] + "=" + parts[1]);
-            System.setProperty(parts[0], parts[1]);
-        }
+        DockerContainer.stop(label);
     }
 }

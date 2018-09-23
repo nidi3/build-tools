@@ -18,14 +18,8 @@ package guru.nidi.maven.tools.backport7to6;
 import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.project.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +38,7 @@ public class Backport7to6ArtifactMojo extends AbstractBackport7to6Mojo {
     @Parameter(property = "backport.version", required = true)
     private String version;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         try {
             final File dir = createTempDir();
             final Artifact artifact = resolveAndUnzipArtifact(dir);

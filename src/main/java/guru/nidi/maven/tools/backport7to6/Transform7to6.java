@@ -27,7 +27,7 @@ class Transform7to6 extends ClassVisitor implements Opcodes {
         this.filename = filename;
     }
 
-    public static boolean transform(File file, String filename) throws IOException {
+    static boolean transform(File file, String filename) throws IOException {
         final FileInputStream fis = new FileInputStream(file);
         final ClassReader in = new ConstantPoolCheckingClassReader(fis);
         final ClassWriter out = new ContextClassloaderClassWriter(in, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);

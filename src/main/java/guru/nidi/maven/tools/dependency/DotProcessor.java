@@ -16,14 +16,9 @@
 package guru.nidi.maven.tools.dependency;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static guru.nidi.maven.tools.dependency.IoUtils.fileEnding;
 
@@ -39,26 +34,18 @@ public class DotProcessor {
     }
 
     protected File[] findDotFiles() {
-        return inputDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.getName().endsWith(".dot");
-            }
-        });
+        return inputDir.listFiles(file -> file.getName().endsWith(".dot"));
     }
 
     protected void executeDots(File[] files) {
         final ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        final List<String> messages = new ArrayList<String>();
+        final List<String> messages = new ArrayList<>();
         for (final File f : files) {
-            es.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        executeDot(f);
-                    } catch (Exception e) {
-                        messages.add(e.getMessage());
-                    }
+            es.submit(() -> {
+                try {
+                    executeDot(f);
+                } catch (Exception e) {
+                    messages.add(e.getMessage());
                 }
             });
         }
@@ -68,7 +55,7 @@ public class DotProcessor {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if(!messages.isEmpty()) {
+        if (!messages.isEmpty()) {
             throw new RuntimeException("Problem(s) generating images: " + messages);
         }
     }
@@ -77,11 +64,11 @@ public class DotProcessor {
         final File png = fileEnding(f, outputDir, ".png");
         final File map = fileEnding(f, inputDir, ".map");
         if (!png.exists() || (!simple && !map.exists())) {
-            final List<String> args = new ArrayList<String>(Arrays.asList("dot", f.getName(), "-Tpng", "-o" + png.getAbsolutePath()));
+            final List<String> args = new ArrayList<>(Arrays.asList("dot", f.getName(), "-Tpng", "-o" + png.getAbsolutePath()));
             if (!simple) {
                 args.addAll(Arrays.asList("-Tcmapx", "-o" + map.getAbsolutePath()));
             }
-            final Process dot = new ProcessBuilder(args).directory(f.getParentFile()).redirectErrorStream(true).start();
+            final Process dot = new ProcessBuilder(args).directory(f.getParentFile()).redirectErrorStream(true).inheritIO().start();
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {
@@ -100,11 +87,10 @@ public class DotProcessor {
 //                }
 //            }
 //        }).start();
-            dot.waitFor();
+            dot.waitFor(1, TimeUnit.MINUTES);
             if (!png.exists()) {
                 throw new IOException("Image was not created. Make sure Graphviz is installed correctly.");
             }
         }
     }
-
 }

@@ -24,15 +24,15 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractDependencyMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project}", readonly = true)
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
     protected MavenProject project;
 
-    @Parameter(defaultValue = "${session}", readonly = true)
+    @Parameter(defaultValue = "${session}", required = true, readonly = true)
     protected MavenSession session;
 
     @Component
@@ -42,61 +42,68 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
     protected ProjectBuilder projectBuilder;
 
     /**
+     * The root artifact for the dependency tree. Default is the current project.
+     * Must be of the form {@code [groupId]:[artifactId]:[type]:[version]}.
+     */
+    @Parameter(property = "rootArtifact")
+    protected String rootArtifact;
+
+    /**
      * Maximum depth of displayed dependencies.
      */
-    @Parameter(property = "maxDepth")
-    protected int maxDepth = 3;
+    @Parameter(property = "maxDepth", defaultValue = "3")
+    protected int maxDepth;
 
     /**
      * If the dot file should be interpreted client side in the browser.
      * If false, graphViz must be installed on the machine and available on PATH.
      */
-    @Parameter(property = "clientSide")
+    @Parameter(property = "clientSide", defaultValue = "false")
     protected boolean clientSide;
 
     /**
      * Display optional dependencies.
      */
-    @Parameter(property = "optional")
-    protected boolean optional = false;
+    @Parameter(property = "optional", defaultValue = "false")
+    protected boolean optional;
 
     /**
      * A comma separated list of scopes to be displayed.
      */
-    @Parameter(property = "scopes")
+    @Parameter(property = "scopes", defaultValue = "compile,provided,system,import,runtime")
     protected String scopes;
 
     /**
      * Create a simple image or a html file with a clickable image map.
      * If true, a server will be started on port 8888.
      */
-    @Parameter(property = "simple")
+    @Parameter(property = "simple", defaultValue = "false")
     protected boolean simple;
 
     /**
      * Clear already calculated images.
      */
-    @Parameter(property = "clear")
-    protected boolean clear = false;
+    @Parameter(property = "clear", defaultValue = "false")
+    protected boolean clear;
 
     /**
      * Dependencies that should NOT be shown. Is a regex of the form
-     * [groupId]:[artifactId]:[type]:[version]
+     * {@code [groupId]:[artifactId]:[type]:[version]}
      */
     @Parameter(property = "excludes")
     protected String excludes;
 
     /**
      * Dependencies that should be shown takes precedence over excludes. Is a regex of the form
-     * [groupId]:[artifactId]:[type]:[version]
+     * {@code [groupId]:[artifactId]:[type]:[version]}
      */
     @Parameter(property = "includes")
     protected String includes;
 
     /**
-     * Formatting the name of the artifacts. A comma separated string of the form [filter]-&gt;[format].
-     * [filter] is a regex of the same form as includes/excludes.
-     * [format] is a kind of printf format with the following tags:
+     * Formatting the name of the artifacts. A format has the form {@code [filter]->[format]}.<br>
+     * {@code [filter]} is a regex of the same form as includes/excludes. <br>
+     * {@code [format]} is a kind of printf format with the following tags:
      * <ul>
      * <li>%g groupId</li>
      * <li>%a artifactId</li>
@@ -108,12 +115,12 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
      * Example: "guru\.nidi.*-&gt;%a%n%20d" Format everything with a groupId starting with "guru.nidi" as artifactId, newline, description with linebreaks every 20 characters.
      */
     @Parameter(property = "formats")
-    protected String formats = "";
+    protected List<String> formats;
 
     /**
      */
-    @Parameter(property = "outputFile")
-    protected File outputFile = new File("target/dependencies.png");
+    @Parameter(property = "outputFile", defaultValue = "target/dependencies.png")
+    protected File outputFile;
 
     private ArtifactFormatter formatter;
 
@@ -129,7 +136,7 @@ public abstract class AbstractDependencyMojo extends AbstractMojo {
         return new File(dotDir(), "html");
     }
 
-    protected void deleteOutput() throws IOException {
+    protected void deleteOutput() {
         dotDir().mkdirs();
         if (clear) {
             IoUtils.deleteAll(dotDir());

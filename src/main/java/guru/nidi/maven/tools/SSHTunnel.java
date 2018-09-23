@@ -32,7 +32,7 @@ import java.util.List;
 public class SSHTunnel extends SSHBase implements TaskContainer {
     private String rhost, lport, rport;
     private long maxwait = 0;
-    private List<Task> nestedTasks = new ArrayList<Task>();
+    private final List<Task> nestedTasks = new ArrayList<>();
 
     public void execute() throws BuildException {
         validateArguments();

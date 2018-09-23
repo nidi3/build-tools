@@ -20,30 +20,25 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.*;
 import org.apache.maven.repository.RepositorySystem;
 
-public class MavenContext {
+class MavenContext {
     private final MavenSession session;
     private final RepositorySystem repository;
     private final ProjectBuilder projectBuilder;
 
-    public MavenContext(MavenSession session, RepositorySystem repository, ProjectBuilder projectBuilder) {
+    MavenContext(MavenSession session, RepositorySystem repository, ProjectBuilder projectBuilder) {
         this.session = session;
         this.repository = repository;
         this.projectBuilder = projectBuilder;
     }
 
-    public MavenProject projectFromArtifact(Artifact artifact) throws ProjectBuildingException {
+    MavenProject projectFromArtifact(Artifact artifact) throws ProjectBuildingException {
         return MavenUtil.projectFromArtifact(session, projectBuilder, artifact, false);
     }
 
-    public ArtifactResolutionResult resolveArtifact(Artifact artifact, ArtifactFilter filter) {
+    ArtifactResolutionResult resolveArtifact(Artifact artifact, ArtifactFilter filter) {
         return MavenUtil.resolveArtifact(session, repository, artifact, true, filter);
     }
-
-
-
 }

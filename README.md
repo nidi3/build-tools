@@ -9,6 +9,8 @@ Contains some goals to support maven builds.
 - runMain: Run any main method.
 - dependency: Create a graphical view of the dependencies of a project.
 - backport7to6: Make a project compiled with Java 7 runnable on Java 6.
+- startMySql: Start a docker container with MySQL, execute any SQL scripts on it.
+- stopMySql: Stop a docker container running MySQL
 - An ssh tunnel ant task to be used together with the antrun plugin:
 
 1. Add this plugin to the dependencies of the antrun plugin.
@@ -23,3 +25,6 @@ to the maven tasks.
             rport="22" rhost="${target.host}">
             <!-- tasks to use the tunnel -->
         </sshtunnel>
+
+As an example, there the dependencies of the project:
+<img src="https://rawgit.com/nidi3/tools-maven-plugin/master/dependencies.png" width="100">

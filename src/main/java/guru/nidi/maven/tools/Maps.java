@@ -15,21 +15,23 @@
  */
 package guru.nidi.maven.tools;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 
-@Mojo(name = "setProperty")
-public class SetPropertyMojo extends AbstractMojo {
-    @Parameter(property = "set.properties", required = true)
-    private String properties;
+class Maps {
+    private Maps() {
+    }
 
-    public void execute() {
-        String[] split = properties.split(",");
-        for (String s : split) {
-            String[] parts = s.split("=");
-            getLog().info("Setting Property " + parts[0] + "=" + parts[1]);
-            System.setProperty(parts[0], parts[1]);
-        }
+    static <K, V> Map<K, V> map(K k, V v) {
+        final Map<K, V> res = new HashMap<>();
+        res.put(k, v);
+        return res;
+    }
+
+    static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2) {
+        final Map<K, V> res = new HashMap<>();
+        res.put(k1, v1);
+        res.put(k2, v2);
+        return res;
     }
 }

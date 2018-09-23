@@ -17,13 +17,17 @@ package guru.nidi.maven.tools.dependency;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
-public class DotCreator {
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+class DotCreator {
     private static final Map<String, DepInfo> deps = new LinkedHashMap<String, DepInfo>() {{
         put(Artifact.SCOPE_RUNTIME_PLUS_SYSTEM, new DepInfo("magenta", 1));
         put(Artifact.SCOPE_COMPILE_PLUS_RUNTIME, new DepInfo("grey", 2));
@@ -35,59 +39,63 @@ public class DotCreator {
         put(Artifact.SCOPE_COMPILE, new DepInfo("black", 8));
     }};
 
+    private final Log log;
     private final File outputDir;
     private final ArtifactFormatter formatter;
     private final Parameters parameters;
     private final MavenContext mavenContext;
 
-    public DotCreator(File outputDir, ArtifactFormatter formatter, Parameters parameters, MavenContext mavenContext) {
+    DotCreator(Log log, File outputDir, ArtifactFormatter formatter, Parameters parameters, MavenContext mavenContext) {
+        this.log = log;
         this.outputDir = outputDir;
         this.formatter = formatter;
         this.parameters = parameters;
         this.mavenContext = mavenContext;
     }
 
-    public void writeComplete(Artifact artifact) throws IOException {
-        final Collection<Artifact> res = calcDependencies(artifact);
-        if (res != null) {
-            final PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileFor(artifact, ".dot")), "utf-8"));
-            out.println("digraph " + quoted(artifact) + "{");
-            out.println("node [shape=box];");
-            out.println("subgraph {");
-            out.println("label=Legend;");
-            out.println("node [shape=plaintext];");
-            String label = "";
-            for (Map.Entry<String, DepInfo> dep : deps.entrySet()) {
-                if (dep.getValue().order > 2 && parameters.isInScope(dep.getKey())) {
-                    out.println("edge [color=" + dep.getValue().color + "]; \"" + dep.getKey() + "\"->\"" + label + "\";");
-                    label += " ";
-                }
+    void writeComplete(Artifact artifact) throws IOException {
+        final File file = fileFor(artifact, ".dot");
+        log.debug("Writing " + file.getAbsolutePath());
+        final PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), UTF_8));
+        out.println("digraph " + quoted(artifact) + "{");
+        out.println("node [shape=box];");
+        out.println("subgraph {");
+        out.println("label=Legend;");
+        out.println("node [shape=plaintext];");
+        String label = "";
+        for (Entry<String, DepInfo> dep : deps.entrySet()) {
+            if (dep.getValue().order > 2 && parameters.isInScope(dep.getKey())) {
+                out.println("edge [color=" + dep.getValue().color + "]; \"" + dep.getKey() + "\"->\"" + label + "\";");
+                label += " ";
             }
-            out.println("}");
-            out.println("rankdir=LR;");
-            out.println(quoted(artifact) + " [label=" + label(artifact) + ",URL=\"/" + toString(artifact) + ".html\"];");
-            try {
-                final MavenProject project = mavenContext.projectFromArtifact(artifact);
-                final Artifact parent = project.getParentArtifact();
-                if (parent != null) {
-                    out.println("{ rank=same; " + quoted(artifact) + "; " + quoted(parent) + "; }");
-                    out.println(quoted(parent) + " [label=" + label(parent) + ",URL=\"/" + toString(parent) + ".html\"];");
-                    out.println(quoted(artifact) + "->" + quoted(parent) + ";");
-                    writeComplete(parent);
-                }
-                //TODO how to find modules?
+        }
+        out.println("}");
+        out.println("rankdir=LR;");
+        out.println(quoted(artifact) + " [label=" + label(artifact) + ",URL=\"/" + toString(artifact) + ".html\"];");
+        try {
+            final MavenProject project = mavenContext.projectFromArtifact(artifact);
+            final Artifact parent = project.getParentArtifact();
+            if (parent != null) {
+                out.println("{ rank=same; " + quoted(artifact) + "; " + quoted(parent) + "; }");
+                out.println(quoted(parent) + " [label=" + label(parent) + ",URL=\"/" + toString(parent) + ".html\"];");
+                out.println(quoted(artifact) + "->" + quoted(parent) + ";");
+                writeComplete(parent);
+            }
+            //TODO how to find modules?
 //            if (project.getModules()!=null){
 //                for(String module: project.getModules()){
 //                    new DefaultArtifact(project.getGroupId(),module,)
 //                }
 //            }
-            } catch (ProjectBuildingException e) {
-                System.out.println(e.getMessage());
-            }
-            writeDependencies(out, artifact, res, new HashSet<String>(), parameters.getMaxDepth());
-            out.println("}");
-            out.close();
+        } catch (ProjectBuildingException e) {
+            log.error("Problem processing dependencies", e);
         }
+        final Collection<Artifact> res = calcDependencies(artifact);
+        if (res != null) {
+            writeDependencies(out, artifact, res, new HashSet<>(), parameters.maxDepth);
+        }
+        out.println("}");
+        out.close();
     }
 
     private void writeDependencies(PrintWriter out, Artifact artifact, Collection<Artifact> res, Set<String> traversed, int depth) throws IOException {
@@ -99,7 +107,7 @@ public class DotCreator {
                 if (!traversed.contains(toString(a)) && depth > 1) {
                     traversed.add(toString(a));
                     writeDependencies(out, a, calcDependencies(a), traversed, depth - 1);
-                    if (!parameters.isSimple() && !fileFor(a, ".dot").exists()) {
+                    if (!parameters.simple && !fileFor(a, ".dot").exists()) {
                         writeComplete(a);
                     }
                 }
@@ -114,12 +122,7 @@ public class DotCreator {
     private Collection<Artifact> calcDependencies(Artifact artifact) {
         artifact.setScope(null);
         final ArtifactResolutionResult res = mavenContext.resolveArtifact(artifact, parameters);
-        for (Iterator<Artifact> it = res.getArtifacts().iterator(); it.hasNext(); ) {
-            final Artifact a = it.next();
-            if (a.equals(artifact) || !parameters.include(a) || a.getDependencyTrail().size() != 2) {
-                it.remove();
-            }
-        }
+        res.getArtifacts().removeIf(a -> a.equals(artifact) || !parameters.include(a) || a.getDependencyTrail().size() != 2);
         if (res.getArtifacts().isEmpty() && !res.getMissingArtifacts().isEmpty()) {
             return null;
         }
@@ -146,8 +149,8 @@ public class DotCreator {
     }
 
     private Collection<Artifact> ordered(Collection<Artifact> artifacts) {
-        final ArrayList<Artifact> res = new ArrayList<Artifact>(artifacts);
-        Collections.sort(res, new Comparator<Artifact>() {
+        final ArrayList<Artifact> res = new ArrayList<>(artifacts);
+        res.sort(new Comparator<Artifact>() {
             @Override
             public int compare(Artifact a1, Artifact a2) {
                 return order(a2) - order(a1);

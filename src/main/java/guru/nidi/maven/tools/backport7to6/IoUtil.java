@@ -17,12 +17,10 @@ package guru.nidi.maven.tools.backport7to6;
 
 import java.io.*;
 import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.*;
 
 class IoUtil {
-    public static void unzip(File jar, File target) throws IOException {
+    static void unzip(File jar, File target) throws IOException {
         final ZipFile in = new ZipFile(jar);
         final Enumeration<? extends ZipEntry> entries = in.entries();
         while (entries.hasMoreElements()) {
@@ -36,7 +34,7 @@ class IoUtil {
         in.close();
     }
 
-    public static void zip(File source, File target) throws IOException {
+    static void zip(File source, File target) throws IOException {
         final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));
         zip("", source, out);
         out.close();
@@ -72,7 +70,7 @@ class IoUtil {
         }
     }
 
-    public static void copyRecursively(File source, File target) throws IOException {
+    static void copyRecursively(File source, File target) throws IOException {
         target.mkdirs();
         final File[] files = source.listFiles();
         if (files != null) {
@@ -86,7 +84,7 @@ class IoUtil {
         }
     }
 
-    public static void deleteAll(File dir) {
+    static void deleteAll(File dir) {
         final File[] files = dir.listFiles();
         if (files != null) {
             for (final File file : files) {

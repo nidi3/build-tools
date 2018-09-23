@@ -19,32 +19,31 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class ArtifactFormatter {
-    private final Map<String, String> formatted = new HashMap<String, String>();
-    private final String formats;
+    private final Map<String, String> formatted = new HashMap<>();
+    private final List<String> formats;
     private final MavenContext mavenContext;
 
-    public ArtifactFormatter(String formats, MavenContext mavenContext) {
+    ArtifactFormatter(List<String> formats, MavenContext mavenContext) {
         this.formats = formats;
         this.mavenContext = mavenContext;
     }
 
-    public String toString(Artifact artifact) {
+    String toString(Artifact artifact) {
         return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() +
-                ("jar" .equals(artifact.getType()) ? "" : (":" + artifact.getType())) +
+                ("jar".equals(artifact.getType()) ? "" : (":" + artifact.getType())) +
                 (empty(artifact.getClassifier()) ? "" : (":" + artifact.getClassifier()));
     }
 
-    public String quoted(Artifact artifact) {
+    String quoted(Artifact artifact) {
         return "\"" + toString(artifact) + "\"";
     }
 
-    public String label(Artifact artifact) {
+    String label(Artifact artifact) {
         final String key = toString(artifact);
         String res = formatted.get(key);
         if (res == null) {
@@ -54,7 +53,7 @@ class ArtifactFormatter {
         return res;
     }
 
-    public String filenameFor(Artifact artifact, String suffix) {
+    String filenameFor(Artifact artifact, String suffix) {
         return toString(artifact).replace(":", "$") + suffix;
     }
 
@@ -63,7 +62,7 @@ class ArtifactFormatter {
     }
 
     private String calcLabel(Artifact artifact) {
-        for (final String format : formats.split(",")) {
+        for (final String format : formats) {
             final String[] f = format.split("->");
             if (new ArtifactMatcher(f[0]).matches(artifact)) {
                 return "<" + format(artifact, f[1]) + ">";
@@ -92,7 +91,7 @@ class ArtifactFormatter {
                 }
                 final int pos = find(desc, "\\.\\s");
                 final String shortDesc = pos < 0 ? desc : desc.substring(0, pos + 1);
-                m.appendReplacement(sb, m.group(2).length() == 0 ? desc : shortDesc);
+                m.appendReplacement(sb, (m.group(2).length() == 0 ? desc : shortDesc).replace("$", "\\$"));
             } catch (ProjectBuildingException e) {
                 //ignore
             }
@@ -115,7 +114,7 @@ class ArtifactFormatter {
                 sb.append(s.substring(start));
                 break;
             }
-            sb.append(s.substring(start, end)).append("<br/>");
+            sb.append(s, start, end).append("<br/>");
             start = end + 1;
         }
         return sb.toString();

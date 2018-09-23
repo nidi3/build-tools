@@ -18,19 +18,20 @@ package guru.nidi.maven.tools.dependency;
 import java.io.*;
 
 import static guru.nidi.maven.tools.dependency.IoUtils.fileEnding;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class HtmlCreator {
+class HtmlCreator {
     private final File inputDir;
     private final File outputDir;
     private final boolean clientSide;
 
-    public HtmlCreator(File inputDir, File outputDir, boolean clientSide) {
+    HtmlCreator(File inputDir, File outputDir, boolean clientSide) {
         this.inputDir = inputDir;
         this.outputDir = outputDir;
         this.clientSide = clientSide;
     }
 
-    public void createHtmls(File[] files) throws IOException {
+    void createHtmls(File[] files) throws IOException {
         for (final File f : files) {
             createHtml(f);
         }
@@ -38,15 +39,15 @@ public class HtmlCreator {
 
     private void createHtml(File f) throws IOException {
         final File output = fileEnding(f, outputDir, ".html");
-        if (!output.exists()) {
+        if (!output.exists() || output.length() == 0) {
             final FileOutputStream fos = new FileOutputStream(output);
-            final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, "utf-8"));
+            final PrintWriter out = new PrintWriter(new OutputStreamWriter(fos, UTF_8));
             out.println("<html><body>");
             if (clientSide) {
                 out.println("<script src='http://mdaines.github.io/viz.js/viz.js'></script>");
                 out.print("<script>document.body.innerHTML += Viz('");
                 out.flush();
-                final BufferedReader svg = new BufferedReader(new InputStreamReader(new FileInputStream(fileEnding(f, inputDir, ".dot")), "utf-8"));
+                final BufferedReader svg = new BufferedReader(new InputStreamReader(new FileInputStream(fileEnding(f, inputDir, ".dot")), UTF_8));
                 String line;
                 while ((line = svg.readLine()) != null) {
                     out.write(line.replace("'", "\\'"));
@@ -64,5 +65,4 @@ public class HtmlCreator {
             out.close();
         }
     }
-
 }

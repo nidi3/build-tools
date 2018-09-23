@@ -18,15 +18,15 @@ package guru.nidi.maven.tools.dependency;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 
-public class Parameters implements ArtifactFilter {
-    private final boolean simple;
-    private final int maxDepth;
+class Parameters implements ArtifactFilter {
+    final boolean simple;
+    final int maxDepth;
     private final boolean optional;
     private final String scopes;
     private final String excludes;
     private final String includes;
 
-    public Parameters(boolean simple, int maxDepth, boolean optional, String scopes, String excludes, String includes) {
+    Parameters(boolean simple, int maxDepth, boolean optional, String scopes, String excludes, String includes) {
         this.simple = simple;
         this.maxDepth = maxDepth;
         this.optional = optional;
@@ -35,15 +35,7 @@ public class Parameters implements ArtifactFilter {
         this.includes = includes;
     }
 
-    public boolean isSimple() {
-        return simple;
-    }
-
-    public int getMaxDepth() {
-        return maxDepth;
-    }
-
-    public boolean isInScope(String s) {
+    boolean isInScope(String s) {
         return scopes == null || scopes.contains(s);
     }
 

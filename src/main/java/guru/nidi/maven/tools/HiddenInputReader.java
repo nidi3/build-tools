@@ -15,9 +15,7 @@
  */
 package guru.nidi.maven.tools;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class HiddenInputReader implements InputReader {
 
@@ -60,6 +58,7 @@ public class HiddenInputReader implements InputReader {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
+                    //ignore
                 }
             }
         }

@@ -17,14 +17,14 @@ package guru.nidi.maven.tools.dependency;
 
 import org.apache.maven.artifact.Artifact;
 
-public class ArtifactMatcher {
+class ArtifactMatcher {
     private final String filter;
 
-    public ArtifactMatcher(String filter) {
+    ArtifactMatcher(String filter) {
         this.filter = filter;
     }
 
-    public boolean matches(Artifact artifact) {
+    boolean matches(Artifact artifact) {
         if (filter == null) {
             return false;
         }

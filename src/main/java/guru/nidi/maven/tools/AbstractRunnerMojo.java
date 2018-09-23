@@ -18,7 +18,6 @@ package guru.nidi.maven.tools;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -33,7 +32,7 @@ public abstract class AbstractRunnerMojo extends AbstractMojo {
 
     protected abstract void run() throws Throwable;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         getLog().info("******************** If using IntelliJ, consider using grep console plugin ********************");
         LogConfiguration.useLogConfig("logback-blue.xml");
 

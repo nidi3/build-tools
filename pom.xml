@@ -6,7 +6,7 @@
     <parent>
         <groupId>guru.nidi</groupId>
         <artifactId>guru-nidi-parent-pom</artifactId>
-        <version>1.0.15</version>
+        <version>1.1.18</version>
         <relativePath />
     </parent>
 
@@ -20,16 +20,15 @@
     <url>https://github.com/nidi3/maven-tools</url>
 
     <properties>
-        <java.version>1.6</java.version>
-        <jetty.version>8.1.17.v20150415</jetty.version>
+        <java.version>1.8</java.version>
+        <jetty.version>9.4.12.v20180830</jetty.version>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.4</version>
+                <version>3.5</version>
                 <configuration>
                     <goalPrefix>tools</goalPrefix>
                 </configuration>
@@ -47,6 +46,29 @@
                             <goal>helpmojo</goal>
                         </goals>
                         <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dependency</goal>
+                        </goals>
+                        <configuration>
+                            <rootArtifact>guru.nidi.maven.plugins:tools-maven-plugin:1.0.20</rootArtifact>
+                            <simple>true</simple>
+                            <formats>
+                                <format>.*->%g%n%a%n%v</format>
+                            </formats>
+                            <scopes>compile</scopes>
+                            <maxDepth>3</maxDepth>
+                            <outputFile>dependencies.png</outputFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -117,6 +139,34 @@
             <version>1.1</version>
             <type>signature</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.0.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.1.0.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
+        </dependency>
+
     </dependencies>
 
     <scm>

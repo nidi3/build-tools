@@ -17,7 +17,6 @@ package guru.nidi.maven.tools.backport7to6;
 
 import guru.nidi.maven.tools.MavenUtil;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProjectHelper;
 
@@ -35,7 +34,7 @@ public class Backport7to6Mojo extends AbstractBackport7to6Mojo {
     @Parameter(property = "backport.classified")
     private boolean classified;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         final File classes = new File(project.getBuild().getOutputDirectory());
         try {
             MavenUtil.extendPluginClasspath(project.getCompileClasspathElements());

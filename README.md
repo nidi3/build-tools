@@ -16,7 +16,7 @@ Contains some goals to support maven builds.
 1. Add this plugin to the dependencies of the antrun plugin.
 1. Add
 
-        <taskdef name="sshtunnel" classname="guru.nidi.maven.tools.SSHTunnel"
+        <taskdef name="sshtunnel" classname="SSHTunnel"
             classpathref="maven.plugin.classpath" />
 to the maven tasks.
 1. Usage:
@@ -28,4 +28,4 @@ to the maven tasks.
 
 As an example, there the dependencies of the project:
 
-<img src="https://rawgit.com/nidi3/tools-maven-plugin/master/dependencies.png" width="850">
+<img src="https://rawgit.com/nidi3/build-tools/master/build-tools/dependencies.png" width="850">

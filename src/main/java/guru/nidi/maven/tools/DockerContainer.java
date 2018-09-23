@@ -22,9 +22,14 @@ import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.*;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -41,7 +46,17 @@ class DockerContainer {
     private static final Logger log = LoggerFactory.getLogger(DockerContainer.class);
 
     private final DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
-    private final DockerClient client = DockerClientBuilder.getInstance(config).build();
+    private final DockerClient client = DockerClientBuilder.getInstance(config)
+            .withDockerCmdExecFactory(
+                    new JerseyDockerCmdExecFactory().withClientRequestFilters(new SetBufferingClientRequestFilter()))
+            .build();
+
+    private static class SetBufferingClientRequestFilter implements ClientRequestFilter {
+        @Override
+        public void filter(ClientRequestContext requestContext) {
+            requestContext.setProperty(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+        }
+    }
 
     DockerContainer(String image, String label) {
         this.image = image;

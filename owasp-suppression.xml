@@ -7,6 +7,7 @@
     <suppress>
         <notes>it's a build tool, so vulnerabilities should be quite insignificant</notes>
         <cpe>cpe:/a:fasterxml:jackson:2.6.4</cpe>
+        <cpe>cpe:/a:fasterxml:jackson-databind:2.6.4</cpe>
     </suppress>
     <suppress>
         <notes>it's a build tool, so vulnerabilities should be quite insignificant</notes>
@@ -15,5 +16,9 @@
     <suppress>
         <notes>it's a build tool, so vulnerabilities should be quite insignificant</notes>
         <cpe>cpe:/a:mysql:mysql:5.1.47</cpe>
+        <cpe>cpe:/a:oracle:connector/j:5.1.47</cpe>
+        <cpe>cpe:/a:oracle:mysql:5.1.47</cpe>
+        <cpe>cpe:/a:oracle:mysql_connectors:5.1.47</cpe>
+        <cpe>cpe:/a:sun:mysql_connector/j:5.1.47</cpe>
     </suppress>
 </suppressions>

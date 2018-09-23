@@ -27,4 +27,5 @@ to the maven tasks.
         </sshtunnel>
 
 As an example, there the dependencies of the project:
-<img src="https://rawgit.com/nidi3/tools-maven-plugin/master/dependencies.png" width="100">
+
+<img src="https://rawgit.com/nidi3/tools-maven-plugin/master/dependencies.png" width="850">

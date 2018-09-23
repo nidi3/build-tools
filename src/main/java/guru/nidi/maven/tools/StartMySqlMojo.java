@@ -15,6 +15,8 @@
  */
 package guru.nidi.maven.tools;
 
+import guru.nidi.maven.tools.docker.DockerContainer;
+import guru.nidi.maven.tools.docker.StartResult;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -30,7 +32,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.List;
 
-import static guru.nidi.maven.tools.Maps.map;
+import static guru.nidi.maven.tools.util.Maps.map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Mojo(name = "startMySql")
@@ -62,33 +64,55 @@ public class StartMySqlMojo extends AbstractMojo {
     @Parameter(property = "mysql.failOnError", defaultValue = "false")
     private boolean failOnError;
 
+    public static void main(String[] args) throws MojoExecutionException {
+        final StartMySqlMojo m = new StartMySqlMojo();
+        m.version = "5.6";
+        m.label = "test";
+        m.password = "hula";
+        m.port = 3300;
+        m.database = "db";
+        m.stopIfRunning = true;
+        m.execute();
+    }
+
     public void execute() throws MojoExecutionException {
-        final DockerContainer container = new DockerContainer("mysql:" + version, label);
+        final DockerContainer container = new DockerContainer("mysql:" + version, label, getLog());
         if (stopIfRunning) {
             container.stop();
         }
-        container.start(
+        final StartResult result = container.start(
+                100, 5 * 60 * 60 * 1000L,
                 map("MYSQL_ROOT_PASSWORD", password, "MYSQL_DATABASE", database),
-                map(3306, port),
+                map(port, 3306),
                 map("--max_allowed_packet", "16384", "--bind-address", "0.0.0.0"),
-                log -> log.contains("starting as process 1"));
-        if (scripts != null) {
-            runScripts();
+                (msg, age) -> {
+                    if (age == 0) {
+                        getLog().info("[Docker] " + msg);
+                        return StartResult.waiting();
+                    }
+                    try (final Connection c = DriverManager.getConnection("jdbc:mysql://127.0.0.1:" + port + "/" + database, "root", password)) {
+                        if (scripts != null) {
+                            runScripts(c);
+                        }
+                        return StartResult.ok();
+                    } catch (SQLException e) {
+                        return StartResult.waiting();
+                    }
+                });
+        if (result.state == StartResult.State.FAIL) {
+            throw new MojoExecutionException("Problem starting container", result.exception);
         }
     }
 
-    private void runScripts() throws MojoExecutionException {
+    private void runScripts(Connection c) {
         try {
-            doRunScripts();
+            doRunScripts(c);
         } catch (IOException e) {
-            throw new MojoExecutionException("Problem reading script files", e);
-        } catch (SQLException e) {
-            throw new MojoExecutionException("Could not connect to database", e);
+            throw new RuntimeException("Problem reading script files", e);
         }
     }
 
-    private void doRunScripts() throws SQLException, IOException {
-        final Connection c = DriverManager.getConnection("jdbc:mysql://127.0.0.1/" + database, "root", password);
+    private void doRunScripts(Connection c) throws IOException {
         for (final String script : scripts) {
             final List<File> files = FileUtils.getFiles(project.getBasedir(), script, null);
             for (final File file : files) {

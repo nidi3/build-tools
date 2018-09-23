@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -23,57 +23,47 @@ import com.github.dockerjava.core.*;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.RequestEntityProcessing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.plugin.logging.Log;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-import static guru.nidi.maven.tools.Maps.map;
+import static guru.nidi.maven.tools.util.Maps.map;
 import static java.util.stream.Collectors.toList;
+import static org.glassfish.jersey.client.ClientProperties.REQUEST_ENTITY_PROCESSING;
+import static org.glassfish.jersey.client.RequestEntityProcessing.BUFFERED;
 
-class DockerContainer {
+public class DockerContainer {
     private final String image;
     private final String label;
-    private static final Logger log = LoggerFactory.getLogger(DockerContainer.class);
+    private final Log log;
 
     private final DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
     private final DockerClient client = DockerClientBuilder.getInstance(config)
-            .withDockerCmdExecFactory(
-                    new JerseyDockerCmdExecFactory().withClientRequestFilters(new SetBufferingClientRequestFilter()))
+            //allow jersey to send content-length header
+            .withDockerCmdExecFactory(new JerseyDockerCmdExecFactory().withClientRequestFilters(ctx ->
+                    ctx.setProperty(REQUEST_ENTITY_PROCESSING, BUFFERED)))
             .build();
 
-    private static class SetBufferingClientRequestFilter implements ClientRequestFilter {
-        @Override
-        public void filter(ClientRequestContext requestContext) {
-            requestContext.setProperty(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
-        }
-    }
-
-    DockerContainer(String image, String label) {
+    public DockerContainer(String image, String label, Log log) {
         this.image = image;
         this.label = label;
+        this.log = log;
     }
 
-    static void stop(String label) {
-        new DockerContainer("", label).stop();
+    public static void stop(String label) {
+        new DockerContainer("", label, null).stop();
     }
 
-    void start(Map<String, String> env, Map<Integer, Integer> ports, Map<String, String> cmd, Predicate<String> untilLog) {
-        if (!isRunning()) {
-            doStart(env, ports, cmd, untilLog);
-        }
+    public StartResult start(int tickerPeriod, long timeout,
+                             Map<String, String> env, Map<Integer, Integer> ports, Map<String, String> cmd,
+                             BiFunction<String, Long, StartResult> waiter) {
+        return isRunning() ? StartResult.ok() : doStart(tickerPeriod, timeout, env, ports, cmd, waiter);
     }
 
-    void stop() {
+    public void stop() {
         if (isRunning()) {
             doStop();
         }
@@ -94,35 +84,27 @@ class DockerContainer {
                 .forEach(c -> client.stopContainerCmd(c.getId()).exec());
     }
 
-    private void doStart(Map<String, String> env, Map<Integer, Integer> ports, Map<String, String> cmd, Predicate<String> untilLog) {
-        final Semaphore ready = new Semaphore(1);
-        try {
-            ready.acquire();
+    private StartResult doStart(int tickerPeriod, long timeout,
+                                Map<String, String> env, Map<Integer, Integer> ports, Map<String, String> cmd,
+                                BiFunction<String, Long, StartResult> waiter) {
+        try (final Ticker ticker = new Ticker(tickerPeriod, timeout, waiter)) {
             try {
                 pullImageIfNeeded();
-                startContainer(env, ports, cmd, msg -> {
-                    log.info("[Docker] " + msg);
-                    if (untilLog.test(msg)) {
-                        ready.release();
-                    }
-                });
+                startContainer(env, ports, cmd, ticker::handle);
             } catch (DockerException e) {
                 throw new RuntimeException("Problem starting " + image + ": " + e.getMessage(), e);
             }
-            ready.tryAcquire(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            return ticker.waitFor();
         }
-        log.info("{} started", image);
     }
 
     private void pullImageIfNeeded() {
         final List<Image> images = client.listImagesCmd().withImageNameFilter(image).exec();
         if (images.isEmpty()) {
-            log.info("Pulling {}...", image);
+            log.info("Pulling " + image);
             final String[] parts = image.split(":");
             client.pullImageCmd(parts[0]).withTag(parts[1]).exec(new PullImageResultCallback()).awaitSuccess();
-            log.info("{} pulled.", image);
+            log.info(image + " pulled");
         }
     }
 

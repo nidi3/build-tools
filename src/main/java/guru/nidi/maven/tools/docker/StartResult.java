@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.docker;
 
-import guru.nidi.maven.tools.docker.DockerContainer;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+public class StartResult {
+    public enum State {
+        OK, FAIL, WAITING
+    }
 
-@Mojo(name = "stopMySql")
-public class StopMySqlMojo extends AbstractMojo {
-    @Parameter(property = "mysql.label", defaultValue = "mysql")
-    private String label;
+    public final State state;
+    public final Exception exception;
 
-    public void execute() {
-        DockerContainer.stop(label);
+    private StartResult(State state, Exception exception) {
+        this.state = state;
+        this.exception = exception;
+    }
+
+    public static StartResult ok() {
+        return new StartResult(State.OK, null);
+    }
+
+    public static StartResult waiting() {
+        return new StartResult(State.WAITING, null);
+    }
+
+    public static StartResult fail(Exception cause) {
+        return new StartResult(State.FAIL, cause);
     }
 }

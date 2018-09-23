@@ -15,6 +15,7 @@
  */
 package guru.nidi.maven.tools;
 
+import guru.nidi.maven.tools.util.MavenUtil;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

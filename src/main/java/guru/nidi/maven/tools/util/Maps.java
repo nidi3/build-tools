@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package guru.nidi.maven.tools;
+package guru.nidi.maven.tools.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class Maps {
+public class Maps {
     private Maps() {
     }
 
-    static <K, V> Map<K, V> map(K k, V v) {
+    public static <K, V> Map<K, V> map(K k, V v) {
         final Map<K, V> res = new HashMap<>();
         res.put(k, v);
         return res;
     }
 
-    static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2) {
+    public static <K, V> Map<K, V> map(K k1, V v1, K k2, V v2) {
         final Map<K, V> res = new HashMap<>();
         res.put(k1, v1);
         res.put(k2, v2);

@@ -15,7 +15,7 @@
  */
 package guru.nidi.maven.tools.dependency;
 
-import guru.nidi.maven.tools.MavenUtil;
+import guru.nidi.maven.tools.util.MavenUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;

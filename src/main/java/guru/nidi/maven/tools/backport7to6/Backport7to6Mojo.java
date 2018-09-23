@@ -15,7 +15,7 @@
  */
 package guru.nidi.maven.tools.backport7to6;
 
-import guru.nidi.maven.tools.MavenUtil;
+import guru.nidi.maven.tools.util.MavenUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProjectHelper;

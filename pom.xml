@@ -11,7 +11,7 @@
 
     <groupId>guru.nidi.maven.plugins</groupId>
     <artifactId>tools-maven-plugin</artifactId>
-    <version>1.0.22-SNAPSHOT</version>
+    <version>1.0.22</version>
     <packaging>maven-plugin</packaging>
 
     <name>${project.artifactId}</name>
@@ -63,7 +63,7 @@
                             <rootArtifact>guru.nidi.maven.plugins:tools-maven-plugin:1.0.21</rootArtifact>
                             <simple>true</simple>
                             <formats>
-                                <format>.*->%g%n%a%n%v</format>
+                                <format>.*-&gt;%g%n%a%n%v</format>
                             </formats>
                             <scopes>compile</scopes>
                             <maxDepth>7</maxDepth>
@@ -168,7 +168,7 @@
         <connection>scm:git:https://github.com/nidi3/maven-tools</connection>
         <developerConnection>scm:git:https://github.com/nidi3/maven-tools</developerConnection>
         <url>https://github.com/nidi3/maven-tools</url>
-        <tag>HEAD</tag>
+        <tag>tools-maven-plugin-1.0.22</tag>
     </scm>
 
 </project>

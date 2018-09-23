@@ -50,29 +50,29 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>${project.artifactId}</artifactId>
-                <version>1.0.20</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>dependency</goal>
-                        </goals>
-                        <configuration>
-                            <rootArtifact>guru.nidi.maven.plugins:tools-maven-plugin:1.0.20</rootArtifact>
-                            <simple>true</simple>
-                            <formats>
-                                <format>.*->%g%n%a%n%v</format>
-                            </formats>
-                            <scopes>compile</scopes>
-                            <maxDepth>3</maxDepth>
-                            <outputFile>dependencies.png</outputFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>${project.groupId}</groupId>-->
+                <!--<artifactId>${project.artifactId}</artifactId>-->
+                <!--<version>1.0.20</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>dependency</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<rootArtifact>guru.nidi.maven.plugins:tools-maven-plugin:1.0.20</rootArtifact>-->
+                            <!--<simple>true</simple>-->
+                            <!--<formats>-->
+                                <!--<format>.*->%g%n%a%n%v</format>-->
+                            <!--</formats>-->
+                            <!--<scopes>compile</scopes>-->
+                            <!--<maxDepth>3</maxDepth>-->
+                            <!--<outputFile>dependencies.png</outputFile>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

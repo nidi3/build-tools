@@ -1,4 +1,8 @@
-maven-tools [![Build Status](https://travis-ci.org/nidi3/maven-tools.png?branch=master)](https://travis-ci.org/nidi3/maven-tools)
+maven-tools 
+[![Build Status](https://travis-ci.org/nidi3/build-tools.svg)](https://travis-ci.org/nidi3/build-tools)
+[![codecov](https://codecov.io/gh/nidi3/build-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/nidi3/build-tools)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ===========
 Contains some goals to support maven builds.
 

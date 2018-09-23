@@ -52,7 +52,7 @@
             <plugin>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
-                <version>${project.version}</version>
+                <version>1.0.20</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

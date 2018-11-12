@@ -61,7 +61,7 @@ public class StartMySqlMojo extends AbstractMojo {
     @Parameter(property = "mysql.scripts")
     private List<String> scripts;
 
-    @Parameter(property = "mysql.failOnError", defaultValue = "false")
+    @Parameter(property = "mysql.failOnError", defaultValue = "true")
     private boolean failOnError;
 
     public static void main(String[] args) throws MojoExecutionException {
@@ -118,7 +118,7 @@ public class StartMySqlMojo extends AbstractMojo {
             for (final File file : files) {
                 getLog().info("Executing SQL script " + project.getBasedir().toPath().relativize(file.toPath()));
                 final EncodedResource resource = new EncodedResource(new FileSystemResource(file), UTF_8);
-                ScriptUtils.executeSqlScript(c, resource, !failOnError, !failOnError, "--", ";", "/*", "*/");
+                ScriptUtils.executeSqlScript(c, resource, !failOnError, true, "--", ";", "/*", "*/");
             }
         }
     }
